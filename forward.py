@@ -1,15 +1,22 @@
 # plan:
 # - read data into node/edges dataframe
-# - use a graph algo to layout final, complete inclusion network
-# - grab node coords from this layout
+# - make data frames for each SR year "cohort"
 # - draw graph evolution directly
-#   - loop over years of Study Reviews
+#   - loop over cohort years of Study Reviews
 #   - draw relevant subset of nodes/edges using previously
 #     generated coords
+
+
+# This works, after a fashsion, I can see the evolution of the
+# network and things stay more or less in place (though the
+# adjustments to fit the window can be weird) however there
+# is an additional factor that is trying to "balance", unsure,
+# disconnected components and that is not looking great.
 
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
+from copy import deepcopy
 
 # load data
 datapath = '~/Vis/projects/schneider/data/derived/'
@@ -59,7 +66,7 @@ fixed = None
 init = True
 
 i = 0
-for cohort in cohorts[:2]:
+for cohort in cohorts:
 
     subG = nx.DiGraph()
     for idx, row in cohort[0].iterrows():
@@ -70,13 +77,13 @@ for cohort in cohorts[:2]:
 
     if init:
         prevpos = nx.spring_layout(subG,seed=42)
-        prevfixed = subG.nodes
+        prevfixed = deepcopy(subG.nodes)
         init = False
     else:
         prevpos = nx.spring_layout(subG,pos=prevpos,fixed=prevfixed,seed=42)
-        prevfixed = subG.nodes
+        prevfixed = deepcopy(subG.nodes)
 
     nx.draw(subG, pos=prevpos)
-    plt.savefig('{}.png'.format(i))
+    plt.savefig('forwards-{}.png'.format(i))
     i += 1
     
