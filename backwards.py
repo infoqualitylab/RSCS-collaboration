@@ -15,9 +15,6 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib.pyplot import figure
 
-#my_dpi = 96
-#figure(figsize=(1280/my_dpi, 720/my_dpi), dpi=my_dpi)
-# load data
 datapath = '~/Vis/projects/schneider-rscs/data/derived/'
 nodesdf = pd.read_csv(datapath + 'article_attr.mvm-edit.csv')
 
@@ -39,7 +36,6 @@ targets = edgesdf['target'].tolist()
 G.add_edges_from(zip(sources, targets))
 
 # layout graph and grab coordinates
-#fullgraphpos = nx.spring_layout(G)
 fullgraphpos = nx.nx_agraph.graphviz_layout(G)
 nx.draw(G, fullgraphpos)
 plt.savefig('backwards-fullgraph.png')
@@ -68,22 +64,12 @@ choices = ['gold', 'lightskyblue', 'lightpink']
 nodesdf['fill'] = np.select(conditions, choices, default='black')
 
 # add labels
-
 edgesdf = pd.merge(edgesdf, nodecoords, left_on='source', right_on='id')
 edgesdf = edgesdf.drop(['id'],axis=1)
 edgesdf = pd.merge(edgesdf, nodecoords, 
         left_on='target', right_on='id', 
         suffixes=tuple(['_source', '_target']))
 edgesdf = edgesdf.drop(['id'], axis=1)
-
-
-# this is for LineCollection
-edgesdf['source_coords'] = list(zip(edgesdf.x_source, edgesdf.y_source))
-edgesdf['target_coords'] = list(zip(edgesdf.x_target, edgesdf.y_target))
-
-# but if drawing with arrow patches, need dx, dy
-edgesdf['dx'] = (edgesdf.x_target - edgesdf.x_source)
-edgesdf['dy'] = (edgesdf.y_target - edgesdf.y_source)
 
 # tuples for edgelist
 edgesdf['tuples'] = tuple(zip(edgesdf.source, edgesdf.target))
@@ -95,15 +81,10 @@ SRs = nodesdf[nodesdf['Type'] == 'Systematic Review']
 SRperiods = []
 for y in SRs['year'].unique():
     nodes = nodesdf[nodesdf['year'] <= y]
-    edges = edgesdf[edgesdf['source'].isin(nodesdf['id'])]
+
+    edges = edgesdf[edgesdf['source'].isin(nodes['id'])]
     SRperiods.append({'nodes': nodes, 'edges': edges})
 
-# now I should be able to use each cohort to make a subgraph view?
-# or grab that subset from G somehow...
-# fullgraphpos is a dict. of nodeid:coords
-
-# feel like there should be a more elegant way to do this...
-i = 0
 
 # drawing directly with matplotlib
 # issues with this approach
@@ -140,17 +121,9 @@ for period in SRperiods:
     i += 1
 '''
 
-# focus on one drawing technique, first!
 # drawing with nx.draw_networkx_{nodes|edges}
 # this way requires that the subsets be dictionaries where the
 # keys are the 'id' and the values are the coordinate pairs 
-'''
-for cohort in cohorts:
-    #nx.draw_networkx_edges(G, cohort[1])
-    
-    nx.draw_networkx_nodes(G, cohort[0])
-'''
-
 i = 0
 for period in SRperiods:
     # this is ugly, if it works figure out a better storage
@@ -160,13 +133,13 @@ for period in SRperiods:
     # however we can throw it into the dict ctor and be fine
     nodepos = dict(period['nodes'][['id', 'coords']].values)
 
+    # annoyingly nx.draw turns off padding, margins differently
     nx.draw_networkx_nodes(G, nodepos, nodelist=nodepos.keys())
-    #nx.draw_networkx_edges(G, nodepos, edgelist=period['edges']['tuples'].to_list())
-    print('MVM, nodepos: {}'.format(nodepos))
-    print('MVM, edgelist: {}'.format(period['edges']['tuples'].to_list()))
-    #nx.draw_networkx_edges(G, nodepos)
-    
-    plt.savefig('test-{}.png'.format(i))
+    nx.draw_networkx_edges(G, nodepos, edgelist=period['edges']['tuples'].to_list())
+
+    plt.axis('off')
+    plt.tight_layout()
+    plt.savefig('test-{}.png'.format(i), pad_inches=0, bbox_inches='tight')
     
     plt.close()
     i+=1
