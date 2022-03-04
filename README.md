@@ -2,7 +2,7 @@
 
 run as:
 
-$ python3 inclusion-net-vis.py <nodescsv> <edgescsv>
+$ python3 inclusion-net-vis.py &lt;nodescsv&gt; &lt;edgescsv&gt;
 
 where nodescsv at least has columns: 
 
