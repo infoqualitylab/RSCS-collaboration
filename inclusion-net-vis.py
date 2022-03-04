@@ -6,9 +6,7 @@
 import pandas as pd
 import numpy as np
 import networkx as nx
-import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
 from matplotlib.pyplot import figure
 import argparse
 
