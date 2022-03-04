@@ -110,7 +110,7 @@ class InclusionNetwork:
         # The idea is that the evolution of the inclusion net is mainly 
         # driven by the arrival of new Systematic Reviews (SRs).
         # New SRs indicate new "periods" (for lack of a better term).
-        # Each period contains the any new SRs from that year and all
+        # Each period contains any new SRs from that year and all
         # Primary Study Reports (PSRs) from appearing since the last period.
 
         # NOTE: Pandas is doing all of this with shallow copying so there 
