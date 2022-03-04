@@ -1,11 +1,7 @@
-# plan:
-# - read data into node/edges dataframe
-# - use a graph algo to layout final, complete inclusion network
-# - grab node coords from this layout
-# - draw graph evolution directly
-#   - loop over years of Study Reviews
-#   - draw relevant subset of nodes/edges using previously
-#     generated coords
+# Mark Van Moer, NCSA/RSCS/UIUC
+
+# Show the evolution of an inclusion network over time.
+# Time periods are based on when new Systematic Reviews appear.
 
 import pandas as pd
 import numpy as np
@@ -17,24 +13,34 @@ from matplotlib.pyplot import figure
 import argparse
 
 class InclusionNetwork:
+    '''Class to encapsulate the inclusion network over its entire history.'''
     def __init__(self):
         self.nodes = None
         self.edges = None
         self.Graph = None
+        # SRperiods are subsets of the data based on when new 
+        # Systematic Reviews appear. It will be a list of dictionaries
+        # which contain keys for the year of the current period,
+        # the nodes, and the edges visible in that period.
         self.SRperiods = []
 
     def load_nodes(self, nodescsv):
         self.nodes = pd.read_csv(nodescsv)
+        # MVM - there was one Attitude which had a trailing space
+        self.nodes.Attitude = self.nodes.Attitude.str.strip()
     
     def load_edges(self, edgescsv):
         self.edges = pd.read_csv(edgescsv)
         # MVM - this column renaming was originally because other
         # things (Gephi?) assumed 'source' 'target' names
-        self.edges = self.edges.rename(columns={'citing_ID':'source','cited_ID':'target'})
-
+        self.edges = self.edges.rename(
+                columns={'citing_ID':'source','cited_ID':'target'}
+                )
 
     def create_graph(self):
-        # create Graph object
+        '''Creates a networkX directed graph for input to layout and 
+        drawing algorithms.
+        '''
         self.Graph = nx.DiGraph()
         self.Graph.add_nodes_from(self.nodes['ID'].tolist())
 
@@ -49,11 +55,15 @@ class InclusionNetwork:
         self.Graph.add_edges_from(zip(sources, targets))
 
     def layout_graph(self):
-
+        '''Lays out the inclusion network using the default AGraph
+        Graphviz algorithm.
+        '''
+        #TODO - allow different layout options
         # layout graph and grab coordinates
         fullgraphpos = nx.nx_agraph.graphviz_layout(self.Graph)
 
         # merge the coordinates into the node and edge data frames
+        # TODO - remove whatever columns ended up being unused
         nodecoords = pd.DataFrame.from_dict(fullgraphpos, orient='index', 
             columns=['x', 'y'])
         nodecoords.index.name = 'ID'
@@ -65,7 +75,8 @@ class InclusionNetwork:
         # a col of (x, y) pairs
         self.nodes['coords'] = list(zip(self.nodes.x, self.nodes.y))
 
-        self.edges = pd.merge(self.edges, nodecoords, left_on='source', right_on='ID')
+        self.edges = pd.merge(self.edges, nodecoords, 
+                left_on='source', right_on='ID')
         self.edges = self.edges.drop(['ID'],axis=1)
         self.edges = pd.merge(self.edges, nodecoords, 
                 left_on='target', right_on='ID', 
@@ -76,7 +87,9 @@ class InclusionNetwork:
         self.edges['tuples'] = tuple(zip(self.edges.source, self.edges.target))
 
     def set_aesthetics(self):
-
+        '''Set some per-node aesthetics. Note that networkX drawing funcs 
+        only accept per-node values for some node attributes, but not all.
+        '''
         # add fill colors
         conditions = [
             self.nodes['Attitude'].eq('inconclusive'),
@@ -94,12 +107,21 @@ class InclusionNetwork:
         self.nodes['labels'] = np.where(self.nodes.Type == 'Systematic Review', 
                 'SR'+self.nodes.labels, self.nodes.labels)
 
-
     def _gather_periods(self):
+        # NOTE: This method is not intended to be called directly.
+        # The idea is that the evolution of the inclusion net is mainly 
+        # driven by the arrival of new Systematic Reviews (SRs).
+        # New SRs indicate new "periods" (for lack of a better term).
+        # Each period contains the any new SRs from that year and all
+        # Primary Study Reports (PSRs) from appearing since the last period.
+
+        # NOTE: Pandas is doing all of this with shallow copying so there 
+        # aren't duplicates in memory. However, this complicates some of the
+        # drawing logic.
+
         # loop over unique SR years grabbing just nodes <= y
         uniquePeriods = self.nodes[self.nodes['Type'] == 'Systematic Review']['year'].unique()
 
-        prev = uniquePeriods[0]
         for i, y in enumerate(uniquePeriods):
             nodes = self.nodes[self.nodes['year'] <= y]
             edges = self.edges[self.edges['source'].isin(nodes['ID'])]
@@ -107,30 +129,47 @@ class InclusionNetwork:
 
 
     def draw_graph_evolution(self):
+        '''Draws the inclusion network evolution by SR "period." SRs and PSRs
+        new to the respective periods are highlighted in red. From the 
+        perspective of drawing attributes, there are N subsets of nodes:
+        1. new vs old: red outline vs no outline
+        2. SR vs PSR: square vs circle shape
+        3. Attitude: 3 different fill colors
+        for 2x2x3 = 12 possible node aesthetic combinations.
+        Fill color is possible to do set prior to drawing because Attitude 
+        doesn't change and networkX accepts iterables of fill color.
+        
+        Edgecolor could also be potentially done prior to drawing if the
+        SRperiods were created with deepcopy. Otherwise the problem is that
+        different subsets get a partial attribute change which is discouraged
+        by pandas best practice.
+
+        Shape however requires splitting because networkX (and matplotlib)
+        will only accept a single shape per draw function.
+        '''
+        # TODO annoyingly nx.draw turns off padding, margins differently
+
         self._gather_periods()
         # drawing with nx.draw_networkx_{nodes|edges}
         # this way requires that the subsets be dictionaries where the
         # keys are the 'ID' and the values are the coordinate pairs 
         for i, period in enumerate(self.SRperiods):
-            # TODO annoyingly nx.draw turns off padding, margins differently
-           
-            # SRs are split from PSRs because unlike coloring, shape can only
-            # be a single option per draw function.
-            SRs = period['nodes'][period['nodes']['Type'] == 'Systematic Review']
-            PSRs = period['nodes'][period['nodes']['Type'] == 'Primary Study Report']
-            SRnodepos = dict(SRs[['ID', 'coords']].values)
-            PSRnodepos = dict(PSRs[['ID', 'coords']].values)
-        
-            # want to do an edgecolor on nodes that are new, whether SR or PSR,
-            # and no edgecolor on older nodes
-            # split edges based on if they're new this period, do this with
-            # a join on the previous period, i.e., old things are present 
-            # in the previous period. pandas doesn't have a direct anti-join, sigh...
-            # can't check on year because edges don't have years
+       
+            # nodepos contains all the node coords, regardless of type.
             nodepos = dict(period['nodes'][['ID', 'coords']].values)
             if i > 0:
+                # this if case is to only draw the red outlines after the first 
+                # SR period.
+
+                # distinguish new nodes from old nodes by doing an anti-join
+                # on the current period vs the previous period. pandas doesn't
+                # have a true anti-join function, so do an outer join which
+                # retains all values and all rows, but also tag with the
+                # indicator parameter so we can compare left-only (new) to
+                # both (pre-existing).
                 current_nodes= period['nodes']
                 previous_nodes= self.SRperiods[i-1]['nodes']
+
                 tmp = current_nodes.merge(previous_nodes, how='outer', indicator=True)
                 new_nodes= tmp[tmp['_merge'] == 'left_only']
                 old_nodes= tmp[tmp['_merge'] == 'both']
@@ -140,47 +179,64 @@ class InclusionNetwork:
         
                 new_PSRs = new_nodes[new_nodes['Type'] == 'Primary Study Report']
                 old_PSRs = old_nodes[old_nodes['Type'] == 'Primary Study Report']
-            
+           
+                # Convert to dict for how networkX expects the data
                 new_SRs_pos = dict(new_SRs[['ID', 'coords']].values)
                 old_SRs_pos = dict(old_SRs[['ID', 'coords']].values)
         
                 new_PSRs_pos = dict(new_PSRs[['ID', 'coords']].values)
                 old_PSRs_pos = dict(old_PSRs[['ID', 'coords']].values)
-        
+       
+                # draw the new SRs with a red outline
                 nx.draw_networkx_nodes(self.Graph, new_SRs_pos, nodelist=new_SRs_pos.keys(),
                     node_color=new_SRs['fill'].to_list(), node_shape='s', edgecolors='red')
+
+                # draw the old SRs without an outline
                 nx.draw_networkx_nodes(self.Graph, old_SRs_pos, nodelist=old_SRs_pos.keys(),
                     node_color=old_SRs['fill'].to_list(), node_shape='s')
-                
+               
+                # draw the new PSRs with a red outline
                 nx.draw_networkx_nodes(self.Graph, new_PSRs_pos, nodelist=new_PSRs_pos.keys(),
                     node_color=new_PSRs['fill'].to_list(), edgecolors='red')
+
+                # draw the old PSRs witout an outline
                 nx.draw_networkx_nodes(self.Graph, old_PSRs_pos, nodelist=old_PSRs_pos.keys(),
                     node_color=old_PSRs['fill'].to_list())
                 
-        
+                # Same process, but now for the edges
                 current_edges = period['edges']
                 previous_edges = self.SRperiods[i-1]['edges']
                 tmp = current_edges.merge(previous_edges, how='outer', indicator=True)
                 new_edges = tmp[tmp['_merge'] == 'left_only']
                 old_edges = tmp[tmp['_merge'] == 'both']
-                
+                               
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=old_edges['tuples'].to_list(), 
                         edge_color='darkgray')
+                
+                # draw the new edges second so that the red overlaps the darkgray
+                # of the old edges.
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges['tuples'].to_list(), 
                         edge_color='red')
             else:
+                # for the first SR period, draw without any outlining.
+                SRs = period['nodes'][period['nodes']['Type'] == 'Systematic Review']
+                PSRs = period['nodes'][period['nodes']['Type'] == 'Primary Study Report']
+                SRnodepos = dict(SRs[['ID', 'coords']].values)
+                PSRnodepos = dict(PSRs[['ID', 'coords']].values)
+
                 nx.draw_networkx_nodes(self.Graph, SRnodepos, nodelist=SRnodepos.keys(),
                         node_color=SRs['fill'].to_list(), node_shape='s')
                 nx.draw_networkx_nodes(self.Graph, PSRnodepos, nodelist=PSRnodepos.keys(),
                         node_color=PSRs['fill'].to_list())
+
                 nx.draw_networkx_edges(self.Graph, nodepos, period['edges']['tuples'].to_list(), 
                         edge_color='darkgray')
         
-            # labels are all drawn with the same style
+            # labels are all drawn with the same style regardles of node type
             # so no separation is necessary
-            nx.draw_networkx_labels(self.Graph, nodepos, labels = dict(period['nodes'][['ID', 'labels']].values))
+            nx.draw_networkx_labels(self.Graph, nodepos, 
+                    labels = dict(period['nodes'][['ID', 'labels']].values))
             
-        
             plt.axis('off')
             plt.tight_layout()
             plt.savefig('inclusion-net-test-{}.png'.format(i), pad_inches=0, bbox_inches='tight')
