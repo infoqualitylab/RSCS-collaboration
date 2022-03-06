@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 import argparse
 from math import ceil
+from string import ascii_lowercase
 
 class InclusionNetwork:
     '''Class to encapsulate the inclusion network over its entire history.'''
@@ -166,6 +167,8 @@ class InclusionNetwork:
         for i, period in enumerate(self.SRperiods):
             # this tiles left-right, top-bottom
             plt.sca(axs[i//2, i%2])
+            emdash = u'\u2014'
+            axs[i//2, i%2].set_title('({}) 2002{}{}'.format(ascii_lowercase[i],emdash,period['endyear']))
             # nodepos contains all the node coords, regardless of type.
             nodepos = dict(period['nodes'][['ID', 'coords']].values)
             if i > 0:
