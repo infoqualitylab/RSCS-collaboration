@@ -9,6 +9,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 import argparse
+from math import ceil
 
 class InclusionNetwork:
     '''Class to encapsulate the inclusion network over its entire history.'''
@@ -148,11 +149,15 @@ class InclusionNetwork:
         # TODO annoyingly nx.draw turns off padding, margins differently
 
         self._gather_periods()
+        fig, axs = plt.subplots(ceil(len(self.SRperiods)/2), 2)
+        fig.set_size_inches(8, 11.5, forward=True)
         # drawing with nx.draw_networkx_{nodes|edges}
         # this way requires that the subsets be dictionaries where the
         # keys are the 'ID' and the values are the coordinate pairs 
+
         for i, period in enumerate(self.SRperiods):
-       
+            # this tiles left-right, top-bottom
+            plt.sca(axs[i//2, i%2])
             # nodepos contains all the node coords, regardless of type.
             nodepos = dict(period['nodes'][['ID', 'coords']].values)
             if i > 0:
@@ -237,9 +242,7 @@ class InclusionNetwork:
             
             plt.axis('off')
             plt.tight_layout()
-            plt.savefig('inclusion-net-test-{}.png'.format(i), pad_inches=0, bbox_inches='tight')
-            
-            plt.close()
+        plt.savefig('tiled-inclusion-net.png', dpi=300)
 
 if __name__ == '__main__':
    
