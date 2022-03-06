@@ -129,11 +129,12 @@ class InclusionNetwork:
 
         # loop over unique SR years grabbing just nodes <= y
         uniquePeriods = self.nodes[self.nodes['Type'] == 'Systematic Review']['year'].unique()
-
+        
         for i, y in enumerate(uniquePeriods):
             nodes = self.nodes[self.nodes['year'] <= y]
             edges = self.edges[self.edges['source'].isin(nodes['ID'])]
-            self.SRperiods.append({'endyear': y, 'nodes': nodes, 'edges': edges})
+            maxSR = nodes[nodes['Type'] == 'Systematic Review']['ID'].max()
+            self.SRperiods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxSR':maxSR})
 
 
     def draw_graph_evolution(self):
@@ -168,10 +169,11 @@ class InclusionNetwork:
             # this tiles left-right, top-bottom
             plt.sca(axs[i//2, i%2])
             emdash = u'\u2014'
-            axs[i//2, i%2].set_title('({}) 2002{}{}'.format(ascii_lowercase[i],emdash,period['endyear']))
             # nodepos contains all the node coords, regardless of type.
             nodepos = dict(period['nodes'][['ID', 'coords']].values)
             if i > 0:
+                axs[i//2, i%2].set_title('({}) 2002-{}, with SR1-SR{}'.format(ascii_lowercase[i],
+                period['endyear'],period['maxSR']))
                 # this if case is to only draw the red outlines after the first 
                 # SR period.
 
@@ -233,6 +235,7 @@ class InclusionNetwork:
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges['tuples'].to_list(), 
                         edge_color=self.new_highlight, width=self.edge_width, arrowsize=self.arrow_size)
             else:
+                axs[i//2, i%2].set_title('(a) 2002, with SR1')
                 # for the first SR period, draw without any outlining.
                 SRs = period['nodes'][period['nodes']['Type'] == 'Systematic Review']
                 PSRs = period['nodes'][period['nodes']['Type'] == 'Primary Study Report']
