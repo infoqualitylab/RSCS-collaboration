@@ -17,6 +17,8 @@ class InclusionNetwork:
         self.nodes = None
         self.edges = None
         self.Graph = None
+        # Here's a thought question, what units are these in? Not pixels...
+        self.node_size = 100
         # SRperiods are subsets of the data based on when new 
         # Systematic Reviews appear. It will be a list of dictionaries
         # which contain keys for the year of the current period,
@@ -192,19 +194,19 @@ class InclusionNetwork:
        
                 # draw the new SRs with a red outline
                 nx.draw_networkx_nodes(self.Graph, new_SRs_pos, nodelist=new_SRs_pos.keys(),
-                    node_color=new_SRs['fill'].to_list(), node_shape='s', edgecolors='red')
+                    node_color=new_SRs['fill'].to_list(), node_shape='s', node_size=self.node_size, edgecolors='red')
 
                 # draw the old SRs without an outline
                 nx.draw_networkx_nodes(self.Graph, old_SRs_pos, nodelist=old_SRs_pos.keys(),
-                    node_color=old_SRs['fill'].to_list(), node_shape='s')
+                    node_color=old_SRs['fill'].to_list(), node_size=self.node_size, node_shape='s')
                
                 # draw the new PSRs with a red outline
                 nx.draw_networkx_nodes(self.Graph, new_PSRs_pos, nodelist=new_PSRs_pos.keys(),
-                    node_color=new_PSRs['fill'].to_list(), edgecolors='red')
+                    node_color=new_PSRs['fill'].to_list(), node_size=self.node_size, edgecolors='red')
 
                 # draw the old PSRs witout an outline
                 nx.draw_networkx_nodes(self.Graph, old_PSRs_pos, nodelist=old_PSRs_pos.keys(),
-                    node_color=old_PSRs['fill'].to_list())
+                    node_color=old_PSRs['fill'].to_list(), node_size=self.node_size)
                 
                 # Same process, but now for the edges
                 current_edges = period['edges']
@@ -228,9 +230,9 @@ class InclusionNetwork:
                 PSRnodepos = dict(PSRs[['ID', 'coords']].values)
 
                 nx.draw_networkx_nodes(self.Graph, SRnodepos, nodelist=SRnodepos.keys(),
-                        node_color=SRs['fill'].to_list(), node_shape='s')
+                        node_color=SRs['fill'].to_list(), node_shape='s', node_size=self.node_size)
                 nx.draw_networkx_nodes(self.Graph, PSRnodepos, nodelist=PSRnodepos.keys(),
-                        node_color=PSRs['fill'].to_list())
+                        node_color=PSRs['fill'].to_list(), node_size=self.node_size)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, period['edges']['tuples'].to_list(), 
                         edge_color='darkgray')
