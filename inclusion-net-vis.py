@@ -240,7 +240,8 @@ class InclusionNetwork:
             # labels are all drawn with the same style regardles of node type
             # so no separation is necessary
             nx.draw_networkx_labels(self.Graph, nodepos, 
-                    labels = dict(period['nodes'][['ID', 'labels']].values))
+                    labels = dict(period['nodes'][['ID', 'labels']].values),
+                    font_size=6)
             
             plt.axis('off')
             plt.tight_layout()
