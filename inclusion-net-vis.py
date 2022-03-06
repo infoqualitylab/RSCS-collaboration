@@ -192,21 +192,22 @@ class InclusionNetwork:
                 new_PSRs_pos = dict(new_PSRs[['ID', 'coords']].values)
                 old_PSRs_pos = dict(old_PSRs[['ID', 'coords']].values)
        
-                # draw the new SRs with a red outline
-                nx.draw_networkx_nodes(self.Graph, new_SRs_pos, nodelist=new_SRs_pos.keys(),
-                    node_color=new_SRs['fill'].to_list(), node_shape='s', node_size=self.node_size, edgecolors='red')
-
                 # draw the old SRs without an outline
                 nx.draw_networkx_nodes(self.Graph, old_SRs_pos, nodelist=old_SRs_pos.keys(),
                     node_color=old_SRs['fill'].to_list(), node_size=self.node_size, node_shape='s')
-               
-                # draw the new PSRs with a red outline
-                nx.draw_networkx_nodes(self.Graph, new_PSRs_pos, nodelist=new_PSRs_pos.keys(),
-                    node_color=new_PSRs['fill'].to_list(), node_size=self.node_size, edgecolors='red')
 
                 # draw the old PSRs witout an outline
                 nx.draw_networkx_nodes(self.Graph, old_PSRs_pos, nodelist=old_PSRs_pos.keys(),
                     node_color=old_PSRs['fill'].to_list(), node_size=self.node_size)
+              
+                # Draw new items second so they overlay old ones
+                # draw the new PSRs with a red outline
+                nx.draw_networkx_nodes(self.Graph, new_PSRs_pos, nodelist=new_PSRs_pos.keys(),
+                    node_color=new_PSRs['fill'].to_list(), node_size=self.node_size, edgecolors='red')
+
+                # draw the new SRs with a red outline
+                nx.draw_networkx_nodes(self.Graph, new_SRs_pos, nodelist=new_SRs_pos.keys(),
+                    node_color=new_SRs['fill'].to_list(), node_shape='s', node_size=self.node_size, edgecolors='red')
                 
                 # Same process, but now for the edges
                 current_edges = period['edges']
