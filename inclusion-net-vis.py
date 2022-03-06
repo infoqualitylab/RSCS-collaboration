@@ -19,6 +19,12 @@ class InclusionNetwork:
         self.Graph = None
         # Here's a thought question, what units are these in? Not pixels...
         self.node_size = 100
+        self.edge_width = 0.5
+        self.arrow_size = 5
+        self.inconclusive_color = '#8da0cb'
+        self.for_color = '#66c2a5'
+        self.against_color = '#fc8d62'
+        self.new_highlight = '#ff3333'
         # SRperiods are subsets of the data based on when new 
         # Systematic Reviews appear. It will be a list of dictionaries
         # which contain keys for the year of the current period,
@@ -98,7 +104,7 @@ class InclusionNetwork:
             self.nodes['Attitude'].eq('against')
         ]
 
-        choices = ['gold', 'lightskyblue', 'lightpink']
+        choices = [self.inconclusive_color, self.for_color, self.against_color]
         self.nodes['fill'] = np.select(conditions, choices, default='black')
 
         # add node labels
@@ -203,11 +209,11 @@ class InclusionNetwork:
                 # Draw new items second so they overlay old ones
                 # draw the new PSRs with a red outline
                 nx.draw_networkx_nodes(self.Graph, new_PSRs_pos, nodelist=new_PSRs_pos.keys(),
-                    node_color=new_PSRs['fill'].to_list(), node_size=self.node_size, edgecolors='red')
+                    node_color=new_PSRs['fill'].to_list(), node_size=self.node_size, edgecolors=self.new_highlight)
 
                 # draw the new SRs with a red outline
                 nx.draw_networkx_nodes(self.Graph, new_SRs_pos, nodelist=new_SRs_pos.keys(),
-                    node_color=new_SRs['fill'].to_list(), node_shape='s', node_size=self.node_size, edgecolors='red')
+                    node_color=new_SRs['fill'].to_list(), node_shape='s', node_size=self.node_size, edgecolors=self.new_highlight)
                 
                 # Same process, but now for the edges
                 current_edges = period['edges']
@@ -217,12 +223,12 @@ class InclusionNetwork:
                 old_edges = tmp[tmp['_merge'] == 'both']
                                
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=old_edges['tuples'].to_list(), 
-                        edge_color='darkgray')
+                        edge_color='darkgray', width=self.edge_width, arrowsize=self.arrow_size)
                 
                 # draw the new edges second so that the red overlaps the darkgray
                 # of the old edges.
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges['tuples'].to_list(), 
-                        edge_color='red')
+                        edge_color=self.new_highlight, width=self.edge_width, arrowsize=self.arrow_size)
             else:
                 # for the first SR period, draw without any outlining.
                 SRs = period['nodes'][period['nodes']['Type'] == 'Systematic Review']
@@ -236,13 +242,13 @@ class InclusionNetwork:
                         node_color=PSRs['fill'].to_list(), node_size=self.node_size)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, period['edges']['tuples'].to_list(), 
-                        edge_color='darkgray')
+                        edge_color='darkgray', width=self.edge_width, arrowsize=self.arrow_size)
         
             # labels are all drawn with the same style regardles of node type
             # so no separation is necessary
             nx.draw_networkx_labels(self.Graph, nodepos, 
                     labels = dict(period['nodes'][['ID', 'labels']].values),
-                    font_size=6)
+                    font_size=6, font_color='#1a1a1a')
             
             plt.axis('off')
             plt.tight_layout()
