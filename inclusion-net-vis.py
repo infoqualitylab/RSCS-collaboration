@@ -26,6 +26,8 @@ class InclusionNetwork:
         self.for_color = '#66c2a5'
         self.against_color = '#fc8d62'
         self.new_highlight = '#ff3333'
+        self.SRshape = 's'
+        self.PSRshape = 'o'
         # SRperiods are subsets of the data based on when new 
         # Systematic Reviews appear. It will be a list of dictionaries
         # which contain keys for the year of the current period,
@@ -156,6 +158,16 @@ class InclusionNetwork:
         Shape however requires splitting because networkX (and matplotlib)
         will only accept a single shape per draw function.
         '''
+       
+        # inner func or method?
+        def _draw_sub_nodes(nodes, Type, shape, edge=None):
+            # grab the subset of SR vs PSR Type
+            subnodes = nodes[nodes['Type'] == Type]
+            # convert to dict for networkX
+            subnodespos = dict(subnodes[['ID', 'coords']].values)
+            nx.draw_networkx_nodes(self.Graph, subnodespos, nodelist=subnodespos.keys(),
+                    node_color=subnodes['fill'].to_list(), node_size=self.node_size,
+                    node_shape=shape, edgecolors=edge)
 
         self._gather_periods()
         fig, axs = plt.subplots(ceil(len(self.SRperiods)/2), 2)
@@ -190,33 +202,11 @@ class InclusionNetwork:
                 new_nodes= tmp[tmp['_merge'] == 'left_only']
                 old_nodes= tmp[tmp['_merge'] == 'both']
 
-                old_SRs = old_nodes[old_nodes['Type'] == 'Systematic Review']
-                old_PSRs = old_nodes[old_nodes['Type'] == 'Primary Study Report']
-                old_SRs_pos = dict(old_SRs[['ID', 'coords']].values)
-                old_PSRs_pos = dict(old_PSRs[['ID', 'coords']].values)
-       
-                # draw the old SRs without an outline
-                nx.draw_networkx_nodes(self.Graph, old_SRs_pos, nodelist=old_SRs_pos.keys(),
-                    node_color=old_SRs['fill'].to_list(), node_size=self.node_size, node_shape='s')
+                _draw_sub_nodes(old_nodes, 'Primary Study Report', self.PSRshape)
+                _draw_sub_nodes(old_nodes, 'Systematic Review', self.SRshape)
 
-                # draw the old PSRs witout an outline
-                nx.draw_networkx_nodes(self.Graph, old_PSRs_pos, nodelist=old_PSRs_pos.keys(),
-                    node_color=old_PSRs['fill'].to_list(), node_size=self.node_size)
-              
-                new_SRs = new_nodes[new_nodes['Type'] == 'Systematic Review']
-                new_PSRs = new_nodes[new_nodes['Type'] == 'Primary Study Report']
-                # Convert to dict for how networkX expects the data
-                new_SRs_pos = dict(new_SRs[['ID', 'coords']].values)
-                new_PSRs_pos = dict(new_PSRs[['ID', 'coords']].values)
-
-                # Draw new items second so they overlay old ones
-                # draw the new PSRs with a red outline
-                nx.draw_networkx_nodes(self.Graph, new_PSRs_pos, nodelist=new_PSRs_pos.keys(),
-                    node_color=new_PSRs['fill'].to_list(), node_size=self.node_size, edgecolors=self.new_highlight)
-
-                # draw the new SRs with a red outline
-                nx.draw_networkx_nodes(self.Graph, new_SRs_pos, nodelist=new_SRs_pos.keys(),
-                    node_color=new_SRs['fill'].to_list(), node_shape='s', node_size=self.node_size, edgecolors=self.new_highlight)
+                _draw_sub_nodes(new_nodes, 'Primary Study Report', self.PSRshape, self.new_highlight)
+                _draw_sub_nodes(new_nodes, 'Systematic Review', self.SRshape, self.new_highlight)
                 
                 # Same process, but now for the edges
                 current_edges = period['edges']
@@ -234,16 +224,8 @@ class InclusionNetwork:
                         edge_color=self.new_highlight, width=self.edge_width, arrowsize=self.arrow_size)
             else:
                 axs[i//2, i%2].set_title('(a) 2002, with SR1')
-                # for the first SR period, draw without any outlining.
-                SRs = period['nodes'][period['nodes']['Type'] == 'Systematic Review']
-                PSRs = period['nodes'][period['nodes']['Type'] == 'Primary Study Report']
-                SRnodepos = dict(SRs[['ID', 'coords']].values)
-                PSRnodepos = dict(PSRs[['ID', 'coords']].values)
-
-                nx.draw_networkx_nodes(self.Graph, SRnodepos, nodelist=SRnodepos.keys(),
-                        node_color=SRs['fill'].to_list(), node_shape='s', node_size=self.node_size)
-                nx.draw_networkx_nodes(self.Graph, PSRnodepos, nodelist=PSRnodepos.keys(),
-                        node_color=PSRs['fill'].to_list(), node_size=self.node_size)
+                _draw_sub_nodes(period['nodes'], 'Primary Study Report', self.PSRshape)
+                _draw_sub_nodes(period['nodes'], 'Systematic Review', self.SRshape)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, period['edges']['tuples'].to_list(), 
                         edge_color='darkgray', width=self.edge_width, arrowsize=self.arrow_size)
