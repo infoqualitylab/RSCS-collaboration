@@ -159,7 +159,10 @@ class InclusionNetwork:
         will only accept a single shape per draw function.
         '''
        
-        # inner func or method?
+        # MVM: inner func or method?
+        # drawing with nx.draw_networkx_{nodes|edges}
+        # this way requires that the subsets be dictionaries where the
+        # keys are the 'ID' and the values are the coordinate pairs 
         def _draw_sub_nodes(nodes, Type, shape, edge=None):
             # grab the subset of SR vs PSR Type
             subnodes = nodes[nodes['Type'] == Type]
@@ -169,61 +172,65 @@ class InclusionNetwork:
                     node_color=subnodes['fill'].to_list(), node_size=self.node_size,
                     node_shape=shape, edgecolors=edge)
 
+        def _split_old_new(i, period, component='nodes'):
+            # distinguish new nodes from old nodes by doing an anti-join
+            # on the current period vs the previous period. pandas doesn't
+            # have a true anti-join function, so do an outer join which
+            # retains all values and all rows, but also tag with the
+            # indicator parameter so we can compare left-only (new) to
+            # both (pre-existing).
+            current_nodes= period[component]
+            previous_nodes= self.SRperiods[i-1][component]
+
+            tmp = current_nodes.merge(previous_nodes, how='outer', indicator=True)
+            old = tmp[tmp['_merge'] == 'both']
+            new = tmp[tmp['_merge'] == 'left_only']
+            return old, new
+
+        # creates the SRperiods list
         self._gather_periods()
+
+        # matplotlib setup for tiled subplots
         fig, axs = plt.subplots(ceil(len(self.SRperiods)/2), 2)
         fig.set_size_inches(8, 11.5, forward=True)
-        # drawing with nx.draw_networkx_{nodes|edges}
-        # this way requires that the subsets be dictionaries where the
-        # keys are the 'ID' and the values are the coordinate pairs 
 
         for i, period in enumerate(self.SRperiods):
-            # this tiles left-right, top-bottom
+            # this tiles left-to-right, top-to-bottom
             plt.sca(axs[i//2, i%2])
+
             # nodepos contains all the node coords, regardless of type, and is
             # used to draw edges and node-labels.
             nodepos = dict(period['nodes'][['ID', 'coords']].values)
+
             if i > 0:
                 # this if case is to only draw the red outlines after the first 
                 # SR period.
 
+                # set the axes title
                 axs[i//2, i%2].set_title('({}) 2002-{}, with SR1-SR{}'.format(ascii_lowercase[i],
                     period['endyear'],period['maxSR']))
 
-                # distinguish new nodes from old nodes by doing an anti-join
-                # on the current period vs the previous period. pandas doesn't
-                # have a true anti-join function, so do an outer join which
-                # retains all values and all rows, but also tag with the
-                # indicator parameter so we can compare left-only (new) to
-                # both (pre-existing).
-                current_nodes= period['nodes']
-                previous_nodes= self.SRperiods[i-1]['nodes']
-
-                tmp = current_nodes.merge(previous_nodes, how='outer', indicator=True)
-                new_nodes= tmp[tmp['_merge'] == 'left_only']
-                old_nodes= tmp[tmp['_merge'] == 'both']
-
+                # split nodes on old vs new 
+                old_nodes, new_nodes = _split_old_new(i, period)
+                # SRs after PSRs and new after old so they're on top
                 _draw_sub_nodes(old_nodes, 'Primary Study Report', self.PSRshape)
-                _draw_sub_nodes(old_nodes, 'Systematic Review', self.SRshape)
-
                 _draw_sub_nodes(new_nodes, 'Primary Study Report', self.PSRshape, self.new_highlight)
+                _draw_sub_nodes(old_nodes, 'Systematic Review', self.SRshape)
                 _draw_sub_nodes(new_nodes, 'Systematic Review', self.SRshape, self.new_highlight)
-                
-                # Same process, but now for the edges
-                current_edges = period['edges']
-                previous_edges = self.SRperiods[i-1]['edges']
-                tmp = current_edges.merge(previous_edges, how='outer', indicator=True)
-                new_edges = tmp[tmp['_merge'] == 'left_only']
-                old_edges = tmp[tmp['_merge'] == 'both']
-                               
+
+                # split edges on old vs new
+                old_edges, new_edges = _split_old_new(i, period, 'edges')
+
+                # MVM: wrap these calls?
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=old_edges['tuples'].to_list(), 
                         edge_color='darkgray', width=self.edge_width, arrowsize=self.arrow_size)
                 
-                # draw the new edges second so that the red overlaps the darkgray
-                # of the old edges.
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges['tuples'].to_list(), 
                         edge_color=self.new_highlight, width=self.edge_width, arrowsize=self.arrow_size)
             else:
                 axs[i//2, i%2].set_title('(a) 2002, with SR1')
+
+                # first time through, don't split on old v. new
                 _draw_sub_nodes(period['nodes'], 'Primary Study Report', self.PSRshape)
                 _draw_sub_nodes(period['nodes'], 'Systematic Review', self.SRshape)
 
