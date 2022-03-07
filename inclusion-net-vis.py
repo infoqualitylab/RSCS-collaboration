@@ -190,18 +190,10 @@ class InclusionNetwork:
                 tmp = current_nodes.merge(previous_nodes, how='outer', indicator=True)
                 new_nodes= tmp[tmp['_merge'] == 'left_only']
                 old_nodes= tmp[tmp['_merge'] == 'both']
-        
-                new_SRs = new_nodes[new_nodes['Type'] == 'Systematic Review']
+
                 old_SRs = old_nodes[old_nodes['Type'] == 'Systematic Review']
-        
-                new_PSRs = new_nodes[new_nodes['Type'] == 'Primary Study Report']
                 old_PSRs = old_nodes[old_nodes['Type'] == 'Primary Study Report']
-           
-                # Convert to dict for how networkX expects the data
-                new_SRs_pos = dict(new_SRs[['ID', 'coords']].values)
                 old_SRs_pos = dict(old_SRs[['ID', 'coords']].values)
-        
-                new_PSRs_pos = dict(new_PSRs[['ID', 'coords']].values)
                 old_PSRs_pos = dict(old_PSRs[['ID', 'coords']].values)
        
                 # draw the old SRs without an outline
@@ -212,6 +204,12 @@ class InclusionNetwork:
                 nx.draw_networkx_nodes(self.Graph, old_PSRs_pos, nodelist=old_PSRs_pos.keys(),
                     node_color=old_PSRs['fill'].to_list(), node_size=self.node_size)
               
+                new_SRs = new_nodes[new_nodes['Type'] == 'Systematic Review']
+                new_PSRs = new_nodes[new_nodes['Type'] == 'Primary Study Report']
+                # Convert to dict for how networkX expects the data
+                new_SRs_pos = dict(new_SRs[['ID', 'coords']].values)
+                new_PSRs_pos = dict(new_PSRs[['ID', 'coords']].values)
+
                 # Draw new items second so they overlay old ones
                 # draw the new PSRs with a red outline
                 nx.draw_networkx_nodes(self.Graph, new_PSRs_pos, nodelist=new_PSRs_pos.keys(),
