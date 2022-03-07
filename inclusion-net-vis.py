@@ -172,10 +172,11 @@ class InclusionNetwork:
             # used to draw edges and node-labels.
             nodepos = dict(period['nodes'][['ID', 'coords']].values)
             if i > 0:
-                axs[i//2, i%2].set_title('({}) 2002-{}, with SR1-SR{}'.format(ascii_lowercase[i],
-                period['endyear'],period['maxSR']))
                 # this if case is to only draw the red outlines after the first 
                 # SR period.
+
+                axs[i//2, i%2].set_title('({}) 2002-{}, with SR1-SR{}'.format(ascii_lowercase[i],
+                    period['endyear'],period['maxSR']))
 
                 # distinguish new nodes from old nodes by doing an anti-join
                 # on the current period vs the previous period. pandas doesn't
