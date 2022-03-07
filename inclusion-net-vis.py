@@ -253,7 +253,6 @@ class InclusionNetwork:
             nx.draw_networkx_labels(self.Graph, nodepos, 
                     labels = dict(period['nodes'][['ID', 'labels']].values),
                     font_size=6, font_color='#1a1a1a')
-            axs[i//2,i%2].legend()        
             plt.axis('off')
             plt.tight_layout()
         plt.savefig('tiled-inclusion-net.png', dpi=300)
