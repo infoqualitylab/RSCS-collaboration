@@ -156,7 +156,6 @@ class InclusionNetwork:
         Shape however requires splitting because networkX (and matplotlib)
         will only accept a single shape per draw function.
         '''
-        # TODO annoyingly nx.draw turns off padding, margins differently
 
         self._gather_periods()
         fig, axs = plt.subplots(ceil(len(self.SRperiods)/2), 2)
