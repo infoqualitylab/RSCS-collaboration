@@ -168,7 +168,6 @@ class InclusionNetwork:
         for i, period in enumerate(self.SRperiods):
             # this tiles left-right, top-bottom
             plt.sca(axs[i//2, i%2])
-            emdash = u'\u2014'
             # nodepos contains all the node coords, regardless of type.
             nodepos = dict(period['nodes'][['ID', 'coords']].values)
             if i > 0:
@@ -255,7 +254,7 @@ class InclusionNetwork:
             nx.draw_networkx_labels(self.Graph, nodepos, 
                     labels = dict(period['nodes'][['ID', 'labels']].values),
                     font_size=6, font_color='#1a1a1a')
-            
+            axs[i//2,i%2].legend()        
             plt.axis('off')
             plt.tight_layout()
         plt.savefig('tiled-inclusion-net.png', dpi=300)
