@@ -14,7 +14,7 @@ from string import ascii_lowercase
 
 class InclusionNetwork:
     '''Class to encapsulate the inclusion network over its entire history.'''
-    def __init__(self):
+    def __init__(self, engine='neato'):
         self.nodes = None
         self.edges = None
         self.Graph = None
@@ -28,6 +28,7 @@ class InclusionNetwork:
         self.new_highlight = '#ff3333'
         self.SRshape = 's'
         self.PSRshape = 'o'
+        self.engine = engine
         # SRperiods are subsets of the data based on when new 
         # Systematic Reviews appear. It will be a list of dictionaries
         # which contain keys for the year of the current period,
@@ -65,12 +66,12 @@ class InclusionNetwork:
         self.Graph.add_edges_from(zip(sources, targets))
 
     def layout_graph(self):
-        '''Lays out the inclusion network using the default AGraph
-        Graphviz algorithm.
+        '''Lays out the inclusion network using a pygraphviz algorithm. NetworkX
+        interfaces pygraphviz through both/either pydot or agraph. Viable options are:
+        neato, dot, twopi, circo, fdp, sfdp
         '''
-        #TODO - allow different layout options
         # layout graph and grab coordinates
-        fullgraphpos = nx.nx_agraph.graphviz_layout(self.Graph)
+        fullgraphpos = nx.nx_agraph.graphviz_layout(self.Graph, prog=self.engine)
 
         # merge the coordinates into the node and edge data frames
         # TODO - remove whatever columns ended up being unused
@@ -100,6 +101,7 @@ class InclusionNetwork:
         '''Set some per-node aesthetics. Note that networkX drawing funcs 
         only accept per-node values for some node attributes, but not all.
         '''
+
         # add fill colors
         conditions = [
             self.nodes['Attitude'].eq('inconclusive'),
@@ -244,7 +246,7 @@ class InclusionNetwork:
                     font_size=6, font_color='#1a1a1a')
             plt.axis('off')
             plt.tight_layout()
-        plt.savefig('tiled-inclusion-net.png', dpi=300)
+        plt.savefig('tiled-inclusion-net-{}.png'.format(self.engine), dpi=300)
 
 if __name__ == '__main__':
    
@@ -253,10 +255,13 @@ if __name__ == '__main__':
     parser.add_argument('edgescsv', help='path to a CSV containing edges')
     args = parser.parse_args()
 
-    saltnetwork = InclusionNetwork()
-    saltnetwork.load_nodes(args.nodescsv)
-    saltnetwork.load_edges(args.edgescsv)
-    saltnetwork.create_graph()
-    saltnetwork.layout_graph()
-    saltnetwork.set_aesthetics()
-    saltnetwork.draw_graph_evolution()
+    layouts = ['neato', 'dot', 'twopi', 'circo', 'fdp', 'sfdp']
+    
+    for layout in layouts:
+        saltnetwork = InclusionNetwork(engine=layout)
+        saltnetwork.load_nodes(args.nodescsv)
+        saltnetwork.load_edges(args.edgescsv)
+        saltnetwork.create_graph()
+        saltnetwork.layout_graph()
+        saltnetwork.set_aesthetics()
+        saltnetwork.draw_graph_evolution()
