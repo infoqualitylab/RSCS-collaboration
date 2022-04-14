@@ -37,8 +37,10 @@ class InclusionNetwork:
 
     def load_nodes(self, nodescsv):
         self.nodes = pd.read_csv(nodescsv)
+        # clean up the column names for consistency
+        self.nodes.columns = self.nodes.columns.str.strip().str.lower()
         # MVM - there was one Attitude which had a trailing space
-        self.nodes.Attitude = self.nodes.Attitude.str.strip()
+        self.nodes.attitude = self.nodes.attitude.str.strip()
     
     def load_edges(self, edgescsv):
         self.edges = pd.read_csv(edgescsv)
@@ -53,12 +55,12 @@ class InclusionNetwork:
         drawing algorithms.
         '''
         self.Graph = nx.DiGraph()
-        self.Graph.add_nodes_from(self.nodes['ID'].tolist())
+        self.Graph.add_nodes_from(self.nodes['id'].tolist())
 
         # MVM - why am I doing this in a loop instead of
         # through the nx api?
         for idx, row in self.nodes.iterrows():
-            self.Graph.add_node(row['ID'], **row)
+            self.Graph.add_node(row['id'], **row)
 
         sources = self.edges['source'].tolist()
         targets = self.edges['target'].tolist()
@@ -77,7 +79,7 @@ class InclusionNetwork:
         # TODO - remove whatever columns ended up being unused
         nodecoords = pd.DataFrame.from_dict(fullgraphpos, orient='index', 
             columns=['x', 'y'])
-        nodecoords.index.name = 'ID'
+        nodecoords.index.name = 'id'
         nodecoords.reset_index(inplace=True)
 
         # as separate x, y cols
@@ -87,12 +89,12 @@ class InclusionNetwork:
         self.nodes['coords'] = list(zip(self.nodes.x, self.nodes.y))
 
         self.edges = pd.merge(self.edges, nodecoords, 
-                left_on='source', right_on='ID')
-        self.edges = self.edges.drop(['ID'],axis=1)
+                left_on='source', right_on='id')
+        self.edges = self.edges.drop(['id'],axis=1)
         self.edges = pd.merge(self.edges, nodecoords, 
-                left_on='target', right_on='ID', 
+                left_on='target', right_on='id', 
                 suffixes=tuple(['_source', '_target']))
-        self.edges = self.edges.drop(['ID'], axis=1)
+        self.edges = self.edges.drop(['id'], axis=1)
 
         # tuples for edgelist
         self.edges['tuples'] = tuple(zip(self.edges.source, self.edges.target))
@@ -104,9 +106,9 @@ class InclusionNetwork:
 
         # add fill colors
         conditions = [
-            self.nodes['Attitude'].eq('inconclusive'),
-            self.nodes['Attitude'].eq('for'),
-            self.nodes['Attitude'].eq('against')
+            self.nodes['attitude'].eq('inconclusive'),
+            self.nodes['attitude'].eq('for'),
+            self.nodes['attitude'].eq('against')
         ]
 
         choices = [self.inconclusive_color, self.for_color, self.against_color]
@@ -114,9 +116,9 @@ class InclusionNetwork:
 
         # add node labels
         # first add a column where the id is a str
-        self.nodes['labels'] = self.nodes['ID'].astype('str')
+        self.nodes['labels'] = self.nodes['id'].astype('str')
         # now add 'SR' where appropriate
-        self.nodes['labels'] = np.where(self.nodes.Type == 'Systematic Review', 
+        self.nodes['labels'] = np.where(self.nodes.type == 'Systematic Review', 
                 'SR'+self.nodes.labels, self.nodes.labels)
 
     def _gather_periods(self):
@@ -132,12 +134,12 @@ class InclusionNetwork:
         # drawing logic.
 
         # loop over unique SR years grabbing just nodes <= y
-        uniquePeriods = self.nodes[self.nodes['Type'] == 'Systematic Review']['year'].unique()
+        uniquePeriods = self.nodes[self.nodes['type'] == 'Systematic Review']['year'].unique()
         
         for i, y in enumerate(uniquePeriods):
             nodes = self.nodes[self.nodes['year'] <= y]
-            edges = self.edges[self.edges['source'].isin(nodes['ID'])]
-            maxSR = nodes[nodes['Type'] == 'Systematic Review']['ID'].max()
+            edges = self.edges[self.edges['source'].isin(nodes['id'])]
+            maxSR = nodes[nodes['type'] == 'Systematic Review']['id'].max()
             self.SRperiods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxSR':maxSR})
 
 
@@ -167,9 +169,9 @@ class InclusionNetwork:
         # keys are the 'ID' and the values are the coordinate pairs 
         def _draw_sub_nodes(nodes, Type, shape, edge=None):
             # grab the subset of SR vs PSR Type
-            subnodes = nodes[nodes['Type'] == Type]
+            subnodes = nodes[nodes['type'] == Type]
             # convert to dict for networkX
-            subnodespos = dict(subnodes[['ID', 'coords']].values)
+            subnodespos = dict(subnodes[['id', 'coords']].values)
             nx.draw_networkx_nodes(self.Graph, subnodespos, nodelist=subnodespos.keys(),
                     node_color=subnodes['fill'].to_list(), node_size=self.node_size,
                     node_shape=shape, edgecolors=edge)
@@ -202,7 +204,7 @@ class InclusionNetwork:
 
             # nodepos contains all the node coords, regardless of type, and is
             # used to draw edges and node-labels.
-            nodepos = dict(period['nodes'][['ID', 'coords']].values)
+            nodepos = dict(period['nodes'][['id', 'coords']].values)
 
             if i > 0:
                 # this if case is to only draw the red outlines after the first 
@@ -242,7 +244,7 @@ class InclusionNetwork:
             # labels are all drawn with the same style regardles of node type
             # so no separation is necessary
             nx.draw_networkx_labels(self.Graph, nodepos, 
-                    labels = dict(period['nodes'][['ID', 'labels']].values),
+                    labels = dict(period['nodes'][['id', 'labels']].values),
                     font_size=6, font_color='#1a1a1a')
             plt.axis('off')
             plt.tight_layout()
