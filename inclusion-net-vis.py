@@ -39,8 +39,8 @@ class InclusionNetwork:
         self.nodes = pd.read_csv(nodescsv)
         # clean up the column names for consistency
         self.nodes.columns = self.nodes.columns.str.strip().str.lower()
-        # MVM - there was one Attitude which had a trailing space
-        self.nodes.attitude = self.nodes.attitude.str.strip()
+        # strip string column data
+        self.nodes = self.nodes.apply(lambda x: x.str.strip() if isinstance(x, str) else x)
     
     def load_edges(self, edgescsv):
         self.edges = pd.read_csv(edgescsv)
