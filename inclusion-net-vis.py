@@ -119,14 +119,16 @@ class InclusionNetwork:
         '''
 
         # add fill colors
-        conditions = [
-            self.nodes['attitude'].eq('inconclusive'),
-            self.nodes['attitude'].eq('for'),
-            self.nodes['attitude'].eq('against')
-        ]
-
-        choices = [self.inconclusive_color, self.for_color, self.against_color]
-        self.nodes['fill'] = np.select(conditions, choices, default='black')
+        try:
+            conditions = [
+                self.nodes[self._cfgs['attitude']].eq('inconclusive'),
+                self.nodes[self._cfgs['attitude']].eq('for'),
+                self.nodes[self._cfgs['attitude']].eq('against')
+            ]
+            choices = [self.inconclusive_color, self.for_color, self.against_color]
+            self.nodes['fill'] = np.select(conditions, choices, default='black')
+        except KeyError:
+            self.nodes['fill'] = 'darkgray'
 
         # add node labels
         # first add a column where the id is a str
