@@ -27,7 +27,7 @@ class InclusionNetwork:
         self.for_color = '#66c2a5'
         self.against_color = '#fc8d62'
         self.new_highlight = '#ff3333'
-        self.SRshape = 's'
+        self.review_shape = 's'
         self.PSRshape = 'o'
         self.engine = engine
         self._cfgs = {}
@@ -232,8 +232,8 @@ class InclusionNetwork:
                 # SRs after PSRs and new after old so they're on top
                 _draw_sub_nodes(old_nodes, 'Primary Study Report', self.PSRshape)
                 _draw_sub_nodes(new_nodes, 'Primary Study Report', self.PSRshape, self.new_highlight)
-                _draw_sub_nodes(old_nodes, 'Systematic Review', self.SRshape)
-                _draw_sub_nodes(new_nodes, 'Systematic Review', self.SRshape, self.new_highlight)
+                _draw_sub_nodes(old_nodes, 'Systematic Review', self.review_shape)
+                _draw_sub_nodes(new_nodes, 'Systematic Review', self.review_shape, self.new_highlight)
 
                 # split edges on old vs new
                 old_edges, new_edges = _split_old_new(i, period, 'edges')
@@ -249,7 +249,7 @@ class InclusionNetwork:
 
                 # first time through, don't split on old v. new
                 _draw_sub_nodes(period['nodes'], 'Primary Study Report', self.PSRshape)
-                _draw_sub_nodes(period['nodes'], 'Systematic Review', self.SRshape)
+                _draw_sub_nodes(period['nodes'], 'Systematic Review', self.review_shape)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, period['edges']['tuples'].to_list(), 
                         edge_color='darkgray', width=self.edge_width, arrowsize=self.arrow_size)
