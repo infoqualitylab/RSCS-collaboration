@@ -69,12 +69,12 @@ class InclusionNetwork:
         drawing algorithms.
         '''
         self.Graph = nx.DiGraph()
-        self.Graph.add_nodes_from(self.nodes['id'].tolist())
+        self.Graph.add_nodes_from(self.nodes[self._cfgs['id']].tolist())
 
         # MVM - why am I doing this in a loop instead of
         # through the nx api?
         for idx, row in self.nodes.iterrows():
-            self.Graph.add_node(row['id'], **row)
+            self.Graph.add_node(row[self._cfgs['id']], **row)
 
         sources = self.edges['source'].tolist()
         targets = self.edges['target'].tolist()
@@ -93,7 +93,7 @@ class InclusionNetwork:
         # TODO - remove whatever columns ended up being unused
         nodecoords = pd.DataFrame.from_dict(fullgraphpos, orient='index', 
             columns=['x', 'y'])
-        nodecoords.index.name = 'id'
+        nodecoords.index.name = self._cfgs['id']
         nodecoords.reset_index(inplace=True)
 
         # as separate x, y cols
@@ -103,12 +103,12 @@ class InclusionNetwork:
         self.nodes['coords'] = list(zip(self.nodes.x, self.nodes.y))
 
         self.edges = pd.merge(self.edges, nodecoords, 
-                left_on='source', right_on='id')
-        self.edges = self.edges.drop(['id'],axis=1)
+                left_on='source', right_on=self._cfgs['id'])
+        self.edges = self.edges.drop([self._cfgs['id']],axis=1)
         self.edges = pd.merge(self.edges, nodecoords, 
-                left_on='target', right_on='id', 
+                left_on='target', right_on=self._cfgs['id'], 
                 suffixes=tuple(['_source', '_target']))
-        self.edges = self.edges.drop(['id'], axis=1)
+        self.edges = self.edges.drop([self._cfgs['id']], axis=1)
 
         # tuples for edgelist
         self.edges['tuples'] = tuple(zip(self.edges.source, self.edges.target))
@@ -132,7 +132,7 @@ class InclusionNetwork:
 
         # add node labels
         # first add a column where the id is a str
-        self.nodes['labels'] = self.nodes['id'].astype('str')
+        self.nodes['labels'] = self.nodes[self._cfgs['id']].astype('str')
         # now add review label where appropriate
         self.nodes['labels'] = np.where(self.nodes[self._cfgs['kind']] == self._cfgs['review'], 
                 self.review_label + self.nodes.labels, self.nodes.labels)
@@ -154,8 +154,8 @@ class InclusionNetwork:
         
         for i, y in enumerate(uniquePeriods):
             nodes = self.nodes[self.nodes[self._cfgs['year']] <= y]
-            edges = self.edges[self.edges['source'].isin(nodes['id'])]
-            maxReviewYear = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']]['id'].max()
+            edges = self.edges[self.edges['source'].isin(nodes[self._cfgs['id']])]
+            maxReviewYear = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['id']].max()
             self.periods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxReviewYear':maxReviewYear})
 
 
@@ -187,7 +187,7 @@ class InclusionNetwork:
             # grab the subset of review vs study kind
             subnodes = nodes[nodes[self._cfgs['kind']] == kind]
             # convert to dict for networkX
-            subnodespos = dict(subnodes[['id', 'coords']].values)
+            subnodespos = dict(subnodes[[self._cfgs['id'], 'coords']].values)
             nx.draw_networkx_nodes(self.Graph, subnodespos, nodelist=subnodespos.keys(),
                     node_color=subnodes['fill'].to_list(), node_size=self.node_size,
                     node_shape=shape, edgecolors=edge)
@@ -220,7 +220,7 @@ class InclusionNetwork:
 
             # nodepos contains all the node coords, regardless of kind, and is
             # used to draw edges and node-labels.
-            nodepos = dict(period['nodes'][['id', 'coords']].values)
+            nodepos = dict(period['nodes'][[self._cfgs['id'], 'coords']].values)
 
             if i > 0:
                 # this if case is to only draw the red outlines after the first 
@@ -260,7 +260,7 @@ class InclusionNetwork:
             # labels are all drawn with the same style regardles of node kind 
             # so no separation is necessary
             nx.draw_networkx_labels(self.Graph, nodepos, 
-                    labels = dict(period['nodes'][['id', 'labels']].values),
+                    labels = dict(period['nodes'][[self._cfgs['id'], 'labels']].values),
                     font_size=6, font_color='#1a1a1a')
             plt.axis('off')
             plt.tight_layout()
