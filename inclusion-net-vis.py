@@ -54,7 +54,7 @@ class InclusionNetwork:
         # clean up the column names for consistency
         self.nodes.columns = self.nodes.columns.str.strip().str.lower()
         # strip string column data
-        self.nodes = self.nodes.apply(lambda x: x.str.strip() if isinstance(x, str) else x)
+        self.nodes = self.nodes.applymap(lambda x: x.strip().lower() if type(x) == str else x)
     
     def load_edges(self):
         self.edges = pd.read_csv(self._cfgs['edgescsvpath'])
@@ -132,7 +132,7 @@ class InclusionNetwork:
         # first add a column where the id is a str
         self.nodes['labels'] = self.nodes['id'].astype('str')
         # now add review label where appropriate
-        self.nodes['labels'] = np.where(self.nodes.type == 'Systematic Review', 
+        self.nodes['labels'] = np.where(self.nodes.type == 'systematic review', 
                 self.review_label + self.nodes.labels, self.nodes.labels)
 
     def _gather_periods(self):
@@ -148,12 +148,12 @@ class InclusionNetwork:
         # drawing logic.
 
         # loop over unique review years grabbing just nodes <= y
-        uniquePeriods = self.nodes[self.nodes['type'] == 'Systematic Review']['year'].unique()
+        uniquePeriods = self.nodes[self.nodes['type'] == 'systematic review']['year'].unique()
         
         for i, y in enumerate(uniquePeriods):
             nodes = self.nodes[self.nodes['year'] <= y]
             edges = self.edges[self.edges['source'].isin(nodes['id'])]
-            maxReviewYear = nodes[nodes['type'] == 'Systematic Review']['id'].max()
+            maxReviewYear = nodes[nodes['type'] == 'systematic review']['id'].max()
             self.periods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxReviewYear':maxReviewYear})
 
 
@@ -231,10 +231,10 @@ class InclusionNetwork:
                 # split nodes on old vs new 
                 old_nodes, new_nodes = _split_old_new(i, period)
                 # reviews after studies and new after old so they're on top
-                _draw_sub_nodes(old_nodes, 'Primary Study Report', self.study_shape)
-                _draw_sub_nodes(new_nodes, 'Primary Study Report', self.study_shape, self.new_highlight)
-                _draw_sub_nodes(old_nodes, 'Systematic Review', self.review_shape)
-                _draw_sub_nodes(new_nodes, 'Systematic Review', self.review_shape, self.new_highlight)
+                _draw_sub_nodes(old_nodes, 'primary study report', self.study_shape)
+                _draw_sub_nodes(new_nodes, 'primary study report', self.study_shape, self.new_highlight)
+                _draw_sub_nodes(old_nodes, 'systematic review', self.review_shape)
+                _draw_sub_nodes(new_nodes, 'systematic review', self.review_shape, self.new_highlight)
 
                 # split edges on old vs new
                 old_edges, new_edges = _split_old_new(i, period, 'edges')
@@ -249,8 +249,8 @@ class InclusionNetwork:
                 axs[i//2, i%2].set_title('(a) 2002, with {}1'.format(self.review_label))
 
                 # first time through, don't split on old v. new
-                _draw_sub_nodes(period['nodes'], 'Primary Study Report', self.study_shape)
-                _draw_sub_nodes(period['nodes'], 'Systematic Review', self.review_shape)
+                _draw_sub_nodes(period['nodes'], 'primary study report', self.study_shape)
+                _draw_sub_nodes(period['nodes'], 'systematic review', self.review_shape)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, period['edges']['tuples'].to_list(), 
                         edge_color='darkgray', width=self.edge_width, arrowsize=self.arrow_size)
