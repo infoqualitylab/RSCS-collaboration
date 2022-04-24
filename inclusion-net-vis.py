@@ -246,7 +246,7 @@ class InclusionNetwork:
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges['tuples'].to_list(), 
                         edge_color=self.new_highlight, width=self.edge_width, arrowsize=self.arrow_size)
             else:
-                axs[i//2, i%2].set_title('(a) 2002, with {}1'.format(self.review_label)
+                axs[i//2, i%2].set_title('(a) 2002, with {}1'.format(self.review_label))
 
                 # first time through, don't split on old v. new
                 _draw_sub_nodes(period['nodes'], 'Primary Study Report', self.study_shape)
