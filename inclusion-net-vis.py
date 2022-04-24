@@ -28,6 +28,7 @@ class InclusionNetwork:
         self.against_color = '#fc8d62'
         self.new_highlight = '#ff3333'
         self.review_shape = 's'
+        self.review_label = 'SR'
         self.study_shape = 'o'
         self.engine = engine
         self._cfgs = {}
@@ -132,7 +133,7 @@ class InclusionNetwork:
         self.nodes['labels'] = self.nodes['id'].astype('str')
         # now add review label where appropriate
         self.nodes['labels'] = np.where(self.nodes.type == 'Systematic Review', 
-                'SR'+self.nodes.labels, self.nodes.labels)
+                self.review_label + self.nodes.labels, self.nodes.labels)
 
     def _gather_periods(self):
         # NOTE: This method is not intended to be called directly.
@@ -224,8 +225,8 @@ class InclusionNetwork:
                 # review period.
 
                 # set the axes title
-                axs[i//2, i%2].set_title('({}) 2002-{}, with SR1-SR{}'.format(ascii_lowercase[i],
-                    period['endyear'],period['maxSR']))
+                axs[i//2, i%2].set_title('({0}) 2002-{1}, with {2}1-{2}{3}'.format(ascii_lowercase[i],
+                    period['endyear'], self.review_label, period['maxSR']))
 
                 # split nodes on old vs new 
                 old_nodes, new_nodes = _split_old_new(i, period)
@@ -245,7 +246,7 @@ class InclusionNetwork:
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges['tuples'].to_list(), 
                         edge_color=self.new_highlight, width=self.edge_width, arrowsize=self.arrow_size)
             else:
-                axs[i//2, i%2].set_title('(a) 2002, with SR1')
+                axs[i//2, i%2].set_title('(a) 2002, with {}1'.format(self.review_label)
 
                 # first time through, don't split on old v. new
                 _draw_sub_nodes(period['nodes'], 'Primary Study Report', self.study_shape)
