@@ -132,7 +132,7 @@ class InclusionNetwork:
         # first add a column where the id is a str
         self.nodes['labels'] = self.nodes['id'].astype('str')
         # now add review label where appropriate
-        self.nodes['labels'] = np.where(self.nodes.type == self._cfgs['review'], 
+        self.nodes['labels'] = np.where(self.nodes[self._cfgs['kind']] == self._cfgs['review'], 
                 self.review_label + self.nodes.labels, self.nodes.labels)
 
     def _gather_periods(self):
@@ -148,12 +148,12 @@ class InclusionNetwork:
         # drawing logic.
 
         # loop over unique review years grabbing just nodes <= y
-        uniquePeriods = self.nodes[self.nodes['type'] == self._cfgs['review']]['year'].unique()
+        uniquePeriods = self.nodes[self.nodes[self._cfgs['kind']] == self._cfgs['review']]['year'].unique()
         
         for i, y in enumerate(uniquePeriods):
             nodes = self.nodes[self.nodes['year'] <= y]
             edges = self.edges[self.edges['source'].isin(nodes['id'])]
-            maxReviewYear = nodes[nodes['type'] == self._cfgs['review']]['id'].max()
+            maxReviewYear = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']]['id'].max()
             self.periods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxReviewYear':maxReviewYear})
 
 
@@ -181,9 +181,9 @@ class InclusionNetwork:
         # drawing with nx.draw_networkx_{nodes|edges}
         # this way requires that the subsets be dictionaries where the
         # keys are the 'ID' and the values are the coordinate pairs 
-        def _draw_sub_nodes(nodes, Type, shape, edge=None):
-            # grab the subset of review vs study Type
-            subnodes = nodes[nodes['type'] == Type]
+        def _draw_sub_nodes(nodes, kind, shape, edge=None):
+            # grab the subset of review vs study kind
+            subnodes = nodes[nodes[self._cfgs['kind']] == kind]
             # convert to dict for networkX
             subnodespos = dict(subnodes[['id', 'coords']].values)
             nx.draw_networkx_nodes(self.Graph, subnodespos, nodelist=subnodespos.keys(),
@@ -216,7 +216,7 @@ class InclusionNetwork:
             # this tiles left-to-right, top-to-bottom
             plt.sca(axs[i//2, i%2])
 
-            # nodepos contains all the node coords, regardless of type, and is
+            # nodepos contains all the node coords, regardless of kind, and is
             # used to draw edges and node-labels.
             nodepos = dict(period['nodes'][['id', 'coords']].values)
 
@@ -255,7 +255,7 @@ class InclusionNetwork:
                 nx.draw_networkx_edges(self.Graph, nodepos, period['edges']['tuples'].to_list(), 
                         edge_color='darkgray', width=self.edge_width, arrowsize=self.arrow_size)
         
-            # labels are all drawn with the same style regardles of node type
+            # labels are all drawn with the same style regardles of node kind 
             # so no separation is necessary
             nx.draw_networkx_labels(self.Graph, nodepos, 
                     labels = dict(period['nodes'][['id', 'labels']].values),
