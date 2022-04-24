@@ -1,0 +1,18 @@
+---
+# Mappings of CSV column names to InclustionNet class attributes, in the format of:
+# attribute: "column name"
+
+id: "ID"
+year: "year"
+kind: "Type"
+attitude: "Attitude"
+
+# enumeration of kinds
+review: "Systematic Review"
+study: "Primary Study Report"
+
+# absolute path to article attribute CSV
+nodescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/2021Summer--network-visualization/Esther_salt_controversy_vis/Article_attr.csv
+
+# absolute path to inclusion net edges CSV
+edgescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/2021Summer--network-visualization/Esther_salt_controversy_vis/inclusion_net_edges.csv
