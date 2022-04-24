@@ -153,8 +153,8 @@ class InclusionNetwork:
         for i, y in enumerate(uniquePeriods):
             nodes = self.nodes[self.nodes['year'] <= y]
             edges = self.edges[self.edges['source'].isin(nodes['id'])]
-            maxSR = nodes[nodes['type'] == 'Systematic Review']['id'].max()
-            self.periods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxSR':maxSR})
+            maxReviewYear = nodes[nodes['type'] == 'Systematic Review']['id'].max()
+            self.periods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxReviewYear':maxReviewYear})
 
 
     def draw_graph_evolution(self):
@@ -226,7 +226,7 @@ class InclusionNetwork:
 
                 # set the axes title
                 axs[i//2, i%2].set_title('({0}) 2002-{1}, with {2}1-{2}{3}'.format(ascii_lowercase[i],
-                    period['endyear'], self.review_label, period['maxSR']))
+                    period['endyear'], self.review_label, period['maxReviewYear']))
 
                 # split nodes on old vs new 
                 old_nodes, new_nodes = _split_old_new(i, period)
