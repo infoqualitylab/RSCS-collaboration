@@ -63,6 +63,10 @@ class InclusionNetwork:
         self.edges = self.edges.rename(
                 columns={'citing_ID':'source','cited_ID':'target'}
                 )
+        
+        # drop any rows where source or target are NaNs
+        self.edges = self.edges[self.edges.target.notnull()]
+        self.edges = self.edges[self.edges.source.notnull()]
 
     def create_graph(self):
         '''Creates a networkX directed graph for input to layout and 
