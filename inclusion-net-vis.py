@@ -269,6 +269,10 @@ class InclusionNetwork:
                     labels = dict(period['nodes'][[self._cfgs['id'], 'labels']].values),
                     font_size=6, font_color='#1a1a1a')
             plt.axis('off')
+
+            # if odd number of subplots, don't draw axes around an empty last plot
+            if len(self.periods) % 2 == 1:
+                axs[-1, -1].axis('off')
             plt.tight_layout()
         plt.savefig('tiled-inclusion-net-{}.png'.format(self.engine), dpi=300)
 
