@@ -35,7 +35,7 @@ class InclusionNetwork:
         # Systematic Reviews appear. It will be a list of dictionaries
         # which contain keys for the year of the current period,
         # the nodes, and the edges visible in that period.
-        self.SRperiods = []
+        self.periods = []
         
     def load_cfgs(self, cfgpath):
         with open(cfgpath, 'r') as cfgfile:
@@ -153,7 +153,7 @@ class InclusionNetwork:
             nodes = self.nodes[self.nodes['year'] <= y]
             edges = self.edges[self.edges['source'].isin(nodes['id'])]
             maxSR = nodes[nodes['type'] == 'Systematic Review']['id'].max()
-            self.SRperiods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxSR':maxSR})
+            self.periods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxSR':maxSR})
 
 
     def draw_graph_evolution(self):
@@ -197,7 +197,7 @@ class InclusionNetwork:
             # indicator parameter so we can compare left-only (new) to
             # both (pre-existing).
             current_nodes= period[component]
-            previous_nodes= self.SRperiods[i-1][component]
+            previous_nodes= self.periods[i-1][component]
 
             tmp = current_nodes.merge(previous_nodes, how='outer', indicator=True)
             old = tmp[tmp['_merge'] == 'both']
@@ -208,10 +208,10 @@ class InclusionNetwork:
         self._gather_periods()
 
         # matplotlib setup for tiled subplots
-        fig, axs = plt.subplots(ceil(len(self.SRperiods)/2), 2)
+        fig, axs = plt.subplots(ceil(len(self.periods)/2), 2)
         fig.set_size_inches(8, 11.5, forward=True)
 
-        for i, period in enumerate(self.SRperiods):
+        for i, period in enumerate(self.periods):
             # this tiles left-to-right, top-to-bottom
             plt.sca(axs[i//2, i%2])
 
