@@ -132,7 +132,7 @@ class InclusionNetwork:
             choices = [self.inconclusive_color, self.for_color, self.against_color]
             self.nodes['fill'] = np.select(conditions, choices, default='black')
         except KeyError:
-            self.nodes['fill'] = 'darkgray'
+            self.nodes['fill'] = 'lightgray'
 
         # add node labels
         # first add a column where the id is a str
