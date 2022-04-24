@@ -11,6 +11,7 @@ from matplotlib.pyplot import figure
 import argparse
 from math import ceil
 from string import ascii_lowercase
+import yaml
 
 class InclusionNetwork:
     '''Class to encapsulate the inclusion network over its entire history.'''
@@ -29,21 +30,33 @@ class InclusionNetwork:
         self.SRshape = 's'
         self.PSRshape = 'o'
         self.engine = engine
+        self._cfgs = {}
         # SRperiods are subsets of the data based on when new 
         # Systematic Reviews appear. It will be a list of dictionaries
         # which contain keys for the year of the current period,
         # the nodes, and the edges visible in that period.
         self.SRperiods = []
+        
+    def load_cfgs(self, cfgpath):
+        with open(cfgpath, 'r') as cfgfile:
+            _tmp_cfgs = yaml.load(cfgfile)
+        pathattrs = {'nodescsvpath', 'edgescsvpath'}
+        for k,v in _tmp_cfgs.items():
+            if k not in pathattrs:
+                self._cfgs[k] = v.strip().lower()
+            else:
+                self._cfgs[k] = v
 
-    def load_nodes(self, nodescsv):
-        self.nodes = pd.read_csv(nodescsv)
+
+    def load_nodes(self):
+        self.nodes = pd.read_csv(self._cfgs['nodescsvpath'])
         # clean up the column names for consistency
         self.nodes.columns = self.nodes.columns.str.strip().str.lower()
         # strip string column data
         self.nodes = self.nodes.apply(lambda x: x.str.strip() if isinstance(x, str) else x)
     
-    def load_edges(self, edgescsv):
-        self.edges = pd.read_csv(edgescsv)
+    def load_edges(self):
+        self.edges = pd.read_csv(self._cfgs['edgescsvpath'])
         # MVM - this column renaming was originally because other
         # things (Gephi?) assumed 'source' 'target' names
         self.edges = self.edges.rename(
@@ -253,16 +266,16 @@ class InclusionNetwork:
 if __name__ == '__main__':
    
     parser = argparse.ArgumentParser(description='draw an inclusion network evolution over time')
-    parser.add_argument('nodescsv', help='path to a CSV containing nodes')
-    parser.add_argument('edgescsv', help='path to a CSV containing edges')
+    parser.add_argument('cfgyaml', help='path to a YAML config file')
     args = parser.parse_args()
 
     layouts = ['neato', 'dot', 'twopi', 'circo', 'fdp', 'sfdp']
     
     for layout in layouts:
         saltnetwork = InclusionNetwork(engine=layout)
-        saltnetwork.load_nodes(args.nodescsv)
-        saltnetwork.load_edges(args.edgescsv)
+        saltnetwork.load_cfgs(args.cfgyaml)
+        saltnetwork.load_nodes()
+        saltnetwork.load_edges()
         saltnetwork.create_graph()
         saltnetwork.layout_graph()
         saltnetwork.set_aesthetics()
