@@ -272,11 +272,11 @@ if __name__ == '__main__':
     layouts = ['neato', 'dot', 'twopi', 'circo', 'fdp', 'sfdp']
     
     for layout in layouts:
-        saltnetwork = InclusionNetwork(engine=layout)
-        saltnetwork.load_cfgs(args.cfgyaml)
-        saltnetwork.load_nodes()
-        saltnetwork.load_edges()
-        saltnetwork.create_graph()
-        saltnetwork.layout_graph()
-        saltnetwork.set_aesthetics()
-        saltnetwork.draw_graph_evolution()
+        network = InclusionNetwork(engine=layout)
+        network.load_cfgs(args.cfgyaml)
+        network.load_nodes()
+        network.load_edges()
+        network.create_graph()
+        network.layout_graph()
+        network.set_aesthetics()
+        network.draw_graph_evolution()
