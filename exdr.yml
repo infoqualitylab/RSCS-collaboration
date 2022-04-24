@@ -1,0 +1,19 @@
+---
+# Mappings of CSV column names to InclustionNet class attributes, in the format of:
+# attribute: "column name"
+
+id: "Our ID"
+year: "Publication Year"
+kind: "Our Item Type"
+# empty string when unused
+attitude: ""
+
+# enumeration of kinds
+review: "ReviewArticle"
+study: "includeditem"
+
+# absolute path to article attribute CSV
+nodescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/exdr/Article_list.csv
+
+# absolute path to inclusion net edges CSV
+edgescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/exdr/inclusion_net_edges.csv
