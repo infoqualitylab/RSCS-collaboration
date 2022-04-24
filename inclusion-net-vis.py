@@ -231,8 +231,8 @@ class InclusionNetwork:
                 # split nodes on old vs new 
                 old_nodes, new_nodes = _split_old_new(i, period)
                 # reviews after studies and new after old so they're on top
-                _draw_sub_nodes(old_nodes, 'primary study report', self.study_shape)
-                _draw_sub_nodes(new_nodes, 'primary study report', self.study_shape, self.new_highlight)
+                _draw_sub_nodes(old_nodes, self._cfgs['study'], self.study_shape)
+                _draw_sub_nodes(new_nodes, self._cfgs['study'], self.study_shape, self.new_highlight)
                 _draw_sub_nodes(old_nodes, 'systematic review', self.review_shape)
                 _draw_sub_nodes(new_nodes, 'systematic review', self.review_shape, self.new_highlight)
 
@@ -249,7 +249,7 @@ class InclusionNetwork:
                 axs[i//2, i%2].set_title('(a) 2002, with {}1'.format(self.review_label))
 
                 # first time through, don't split on old v. new
-                _draw_sub_nodes(period['nodes'], 'primary study report', self.study_shape)
+                _draw_sub_nodes(period['nodes'], self._cfgs['study'], self.study_shape)
                 _draw_sub_nodes(period['nodes'], 'systematic review', self.review_shape)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, period['edges']['tuples'].to_list(), 
