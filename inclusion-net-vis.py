@@ -28,7 +28,7 @@ class InclusionNetwork:
         self.against_color = '#fc8d62'
         self.new_highlight = '#ff3333'
         self.review_shape = 's'
-        self.PSRshape = 'o'
+        self.study_shape = 'o'
         self.engine = engine
         self._cfgs = {}
         # SRperiods are subsets of the data based on when new 
@@ -230,8 +230,8 @@ class InclusionNetwork:
                 # split nodes on old vs new 
                 old_nodes, new_nodes = _split_old_new(i, period)
                 # SRs after PSRs and new after old so they're on top
-                _draw_sub_nodes(old_nodes, 'Primary Study Report', self.PSRshape)
-                _draw_sub_nodes(new_nodes, 'Primary Study Report', self.PSRshape, self.new_highlight)
+                _draw_sub_nodes(old_nodes, 'Primary Study Report', self.study_shape)
+                _draw_sub_nodes(new_nodes, 'Primary Study Report', self.study_shape, self.new_highlight)
                 _draw_sub_nodes(old_nodes, 'Systematic Review', self.review_shape)
                 _draw_sub_nodes(new_nodes, 'Systematic Review', self.review_shape, self.new_highlight)
 
@@ -248,7 +248,7 @@ class InclusionNetwork:
                 axs[i//2, i%2].set_title('(a) 2002, with SR1')
 
                 # first time through, don't split on old v. new
-                _draw_sub_nodes(period['nodes'], 'Primary Study Report', self.PSRshape)
+                _draw_sub_nodes(period['nodes'], 'Primary Study Report', self.study_shape)
                 _draw_sub_nodes(period['nodes'], 'Systematic Review', self.review_shape)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, period['edges']['tuples'].to_list(), 
