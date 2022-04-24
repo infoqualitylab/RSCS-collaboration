@@ -140,7 +140,7 @@ class InclusionNetwork:
         # driven by the arrival of new reviews.
         # New reviews indicate new "periods" (for lack of a better term).
         # Each period contains any new reviews from that year and all
-        # Primary Study Reports (PSRs) from appearing since the last period.
+        # studies from appearing since the last period.
 
         # NOTE: Pandas is doing all of this with shallow copying so there 
         # aren't duplicates in memory. However, this complicates some of the
@@ -161,7 +161,7 @@ class InclusionNetwork:
         new to the respective periods are highlighted in red. From the 
         perspective of drawing attributes, there are N subsets of nodes:
         1. new vs old: red outline vs no outline
-        2. review vs PSR: square vs circle shape
+        2. review vs study: square vs circle shape
         3. Attitude: 3 different fill colors
         for 2x2x3 = 12 possible node aesthetic combinations.
         Fill color is possible to do set prior to drawing because Attitude 
@@ -181,7 +181,7 @@ class InclusionNetwork:
         # this way requires that the subsets be dictionaries where the
         # keys are the 'ID' and the values are the coordinate pairs 
         def _draw_sub_nodes(nodes, Type, shape, edge=None):
-            # grab the subset of review vs PSR Type
+            # grab the subset of review vs study Type
             subnodes = nodes[nodes['type'] == Type]
             # convert to dict for networkX
             subnodespos = dict(subnodes[['id', 'coords']].values)
@@ -229,7 +229,7 @@ class InclusionNetwork:
 
                 # split nodes on old vs new 
                 old_nodes, new_nodes = _split_old_new(i, period)
-                # reviews after PSRs and new after old so they're on top
+                # reviews after studies and new after old so they're on top
                 _draw_sub_nodes(old_nodes, 'Primary Study Report', self.study_shape)
                 _draw_sub_nodes(new_nodes, 'Primary Study Report', self.study_shape, self.new_highlight)
                 _draw_sub_nodes(old_nodes, 'Systematic Review', self.review_shape)
