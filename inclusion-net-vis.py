@@ -31,7 +31,7 @@ class InclusionNetwork:
         self.study_shape = 'o'
         self.engine = engine
         self._cfgs = {}
-        # SRperiods are subsets of the data based on when new 
+        # periods are subsets of the data based on when new 
         # Systematic Reviews appear. It will be a list of dictionaries
         # which contain keys for the year of the current period,
         # the nodes, and the edges visible in that period.
@@ -130,23 +130,23 @@ class InclusionNetwork:
         # add node labels
         # first add a column where the id is a str
         self.nodes['labels'] = self.nodes['id'].astype('str')
-        # now add 'SR' where appropriate
+        # now add review label where appropriate
         self.nodes['labels'] = np.where(self.nodes.type == 'Systematic Review', 
                 'SR'+self.nodes.labels, self.nodes.labels)
 
     def _gather_periods(self):
         # NOTE: This method is not intended to be called directly.
         # The idea is that the evolution of the inclusion net is mainly 
-        # driven by the arrival of new Systematic Reviews (SRs).
-        # New SRs indicate new "periods" (for lack of a better term).
-        # Each period contains any new SRs from that year and all
+        # driven by the arrival of new reviews.
+        # New reviews indicate new "periods" (for lack of a better term).
+        # Each period contains any new reviews from that year and all
         # Primary Study Reports (PSRs) from appearing since the last period.
 
         # NOTE: Pandas is doing all of this with shallow copying so there 
         # aren't duplicates in memory. However, this complicates some of the
         # drawing logic.
 
-        # loop over unique SR years grabbing just nodes <= y
+        # loop over unique review years grabbing just nodes <= y
         uniquePeriods = self.nodes[self.nodes['type'] == 'Systematic Review']['year'].unique()
         
         for i, y in enumerate(uniquePeriods):
@@ -157,18 +157,18 @@ class InclusionNetwork:
 
 
     def draw_graph_evolution(self):
-        '''Draws the inclusion network evolution by SR "period." SRs and PSRs
+        '''Draws the inclusion network evolution by review "period." Reviews and studies
         new to the respective periods are highlighted in red. From the 
         perspective of drawing attributes, there are N subsets of nodes:
         1. new vs old: red outline vs no outline
-        2. SR vs PSR: square vs circle shape
+        2. review vs PSR: square vs circle shape
         3. Attitude: 3 different fill colors
         for 2x2x3 = 12 possible node aesthetic combinations.
         Fill color is possible to do set prior to drawing because Attitude 
         doesn't change and networkX accepts iterables of fill color.
         
         Edgecolor could also be potentially done prior to drawing if the
-        SRperiods were created with deepcopy. Otherwise the problem is that
+        periods were created with deepcopy. Otherwise the problem is that
         different subsets get a partial attribute change which is discouraged
         by pandas best practice.
 
@@ -181,7 +181,7 @@ class InclusionNetwork:
         # this way requires that the subsets be dictionaries where the
         # keys are the 'ID' and the values are the coordinate pairs 
         def _draw_sub_nodes(nodes, Type, shape, edge=None):
-            # grab the subset of SR vs PSR Type
+            # grab the subset of review vs PSR Type
             subnodes = nodes[nodes['type'] == Type]
             # convert to dict for networkX
             subnodespos = dict(subnodes[['id', 'coords']].values)
@@ -204,7 +204,7 @@ class InclusionNetwork:
             new = tmp[tmp['_merge'] == 'left_only']
             return old, new
 
-        # creates the SRperiods list
+        # creates the periods list
         self._gather_periods()
 
         # matplotlib setup for tiled subplots
@@ -221,7 +221,7 @@ class InclusionNetwork:
 
             if i > 0:
                 # this if case is to only draw the red outlines after the first 
-                # SR period.
+                # review period.
 
                 # set the axes title
                 axs[i//2, i%2].set_title('({}) 2002-{}, with SR1-SR{}'.format(ascii_lowercase[i],
@@ -229,7 +229,7 @@ class InclusionNetwork:
 
                 # split nodes on old vs new 
                 old_nodes, new_nodes = _split_old_new(i, period)
-                # SRs after PSRs and new after old so they're on top
+                # reviews after PSRs and new after old so they're on top
                 _draw_sub_nodes(old_nodes, 'Primary Study Report', self.study_shape)
                 _draw_sub_nodes(new_nodes, 'Primary Study Report', self.study_shape, self.new_highlight)
                 _draw_sub_nodes(old_nodes, 'Systematic Review', self.review_shape)
