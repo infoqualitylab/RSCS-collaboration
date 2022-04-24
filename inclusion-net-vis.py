@@ -1,7 +1,7 @@
 # Mark Van Moer, NCSA/RSCS/UIUC
 
 # Show the evolution of an inclusion network over time.
-# Time periods are based on when new Systematic Reviews appear.
+# Time periods are based on when new reviews appear.
 
 import pandas as pd
 import numpy as np
@@ -33,7 +33,7 @@ class InclusionNetwork:
         self.engine = engine
         self._cfgs = {}
         # periods are subsets of the data based on when new 
-        # Systematic Reviews appear. It will be a list of dictionaries
+        # reviews appear. It will be a list of dictionaries
         # which contain keys for the year of the current period,
         # the nodes, and the edges visible in that period.
         self.periods = []
