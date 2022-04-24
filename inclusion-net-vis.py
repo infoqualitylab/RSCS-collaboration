@@ -148,10 +148,10 @@ class InclusionNetwork:
         # drawing logic.
 
         # loop over unique review years grabbing just nodes <= y
-        uniquePeriods = self.nodes[self.nodes[self._cfgs['kind']] == self._cfgs['review']]['year'].unique()
+        uniquePeriods = self.nodes[self.nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['year']].unique()
         
         for i, y in enumerate(uniquePeriods):
-            nodes = self.nodes[self.nodes['year'] <= y]
+            nodes = self.nodes[self.nodes[self._cfgs['year']] <= y]
             edges = self.edges[self.edges['source'].isin(nodes['id'])]
             maxReviewYear = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']]['id'].max()
             self.periods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxReviewYear':maxReviewYear})
