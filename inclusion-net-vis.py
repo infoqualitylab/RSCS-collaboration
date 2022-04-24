@@ -155,8 +155,10 @@ class InclusionNetwork:
         for i, y in enumerate(uniquePeriods):
             nodes = self.nodes[self.nodes[self._cfgs['year']] <= y]
             edges = self.edges[self.edges['source'].isin(nodes[self._cfgs['id']])]
-            maxReviewYear = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['id']].max()
-            self.periods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxReviewYear':maxReviewYear})
+            maxReviewId = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['id']].max()
+            startyear = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['year']].min()
+            self.periods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxReviewId':maxReviewId, 
+                'startyear': startyear})
 
 
     def draw_graph_evolution(self):
@@ -227,8 +229,8 @@ class InclusionNetwork:
                 # review period.
 
                 # set the axes title
-                axs[i//2, i%2].set_title('({0}) 2002-{1}, with {2}1-{2}{3}'.format(ascii_lowercase[i],
-                    period['endyear'], self.review_label, period['maxReviewYear']))
+                axs[i//2, i%2].set_title('({0}) {1}-{2}, with {3}1-{3}{4}'.format(ascii_lowercase[i],
+                    period['startyear'], period['endyear'], self.review_label, period['maxReviewId']))
 
                 # split nodes on old vs new 
                 old_nodes, new_nodes = _split_old_new(i, period)
@@ -248,7 +250,7 @@ class InclusionNetwork:
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges['tuples'].to_list(), 
                         edge_color=self.new_highlight, width=self.edge_width, arrowsize=self.arrow_size)
             else:
-                axs[i//2, i%2].set_title('(a) 2002, with {}1'.format(self.review_label))
+                axs[i//2, i%2].set_title('(a) {}, with {}1'.format(period['startyear'],self.review_label))
 
                 # first time through, don't split on old v. new
                 _draw_sub_nodes(period['nodes'], self._cfgs['study'], self.study_shape)
