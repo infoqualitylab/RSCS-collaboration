@@ -42,8 +42,9 @@ class InclusionNetwork:
         with open(cfgpath, 'r') as cfgfile:
             _tmp_cfgs = yaml.load(cfgfile)
         pathattrs = {'nodescsvpath', 'edgescsvpath'}
+        boolattr = {'tiled'}
         for k,v in _tmp_cfgs.items():
-            if k not in pathattrs:
+            if k not in pathattrs and k not in boolattr:
                 self._cfgs[k] = v.strip().lower()
             else:
                 self._cfgs[k] = v
@@ -165,7 +166,7 @@ class InclusionNetwork:
                 'startyear': startyear})
 
 
-    def draw_tiled_graph_evolution(self):
+    def draw_graph_evolution(self):
         '''Draws the inclusion network evolution by review "period." Reviews and studies
         new to the respective periods are highlighted in red. From the 
         perspective of drawing attributes, there are N subsets of nodes:
@@ -217,12 +218,17 @@ class InclusionNetwork:
         self._gather_periods()
 
         # matplotlib setup for tiled subplots
-        fig, axs = plt.subplots(ceil(len(self.periods)/2), 2)
-        fig.set_size_inches(8, 11.5, forward=True)
+        if self._cfgs['tiled']:
+            fig, axs = plt.subplots(ceil(len(self.periods)/2), 2)
+            fig.set_size_inches(16, 23, forward=True)
+        else:
+            fig, axs = plt.subplots()
 
         for i, period in enumerate(self.periods):
             # this tiles left-to-right, top-to-bottom
-            plt.sca(axs[i//2, i%2])
+            
+            if self._cfgs['tiled']:
+                plt.sca(axs[i//2, i%2])
 
             # nodepos contains all the node coords, regardless of kind, and is
             # used to draw edges and node-labels.
@@ -233,9 +239,12 @@ class InclusionNetwork:
                 # review period.
 
                 # set the axes title
-                axs[i//2, i%2].set_title('({0}) {1}-{2}, with {3}1-{3}{4}'.format(ascii_lowercase[i],
-                    period['startyear'], period['endyear'], self.review_label, period['maxReviewId']))
-
+                if self._cfgs['tiled']:
+                    axs[i//2, i%2].set_title('({0}) {1}-{2}, with {3}1-{3}{4}'.format(ascii_lowercase[i],
+                        period['startyear'], period['endyear'], self.review_label, period['maxReviewId']))
+                else:
+                    axs.set_title('({0}) {1}-{2}, with {3}1-{3}{4}'.format(ascii_lowercase[i],
+                        period['startyear'], period['endyear'], self.review_label, period['maxReviewId']))
                 # split nodes on old vs new 
                 old_nodes, new_nodes = _split_old_new(i, period)
                 # reviews after studies and new after old so they're on top
@@ -254,7 +263,10 @@ class InclusionNetwork:
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges['tuples'].to_list(), 
                         edge_color=self.new_highlight, width=self.edge_width, arrowsize=self.arrow_size)
             else:
-                axs[i//2, i%2].set_title('(a) {}, with {}1'.format(period['startyear'],self.review_label))
+                if self._cfgs['tiled']:
+                    axs[i//2, i%2].set_title('(a) {}, with {}1'.format(period['startyear'],self.review_label))
+                else:
+                    axs.set_title('(a) {}, with {}1'.format(period['startyear'],self.review_label))
 
                 # first time through, don't split on old v. new
                 _draw_sub_nodes(period['nodes'], self._cfgs['study'], self.study_shape)
@@ -271,10 +283,14 @@ class InclusionNetwork:
             plt.axis('off')
 
             # if odd number of subplots, don't draw axes around an empty last plot
-            if len(self.periods) % 2 == 1:
+            if self._cfgs['tiled'] and len(self.periods) % 2 == 1:
                 axs[-1, -1].axis('off')
             plt.tight_layout()
-        plt.savefig('tiled-inclusion-net-{}.png'.format(self.engine), dpi=300)
+            if not self._cfgs['tiled']:
+                plt.savefig('inclusion-net-{}-{}.png'.format(self.engine, i), dpi=300)
+        if self._cfgs['tiled']:
+            plt.savefig('tiled-inclusion-net-{}.png'.format(self.engine), dpi=300)
+        
 
 if __name__ == '__main__':
    
@@ -292,4 +308,4 @@ if __name__ == '__main__':
         network.create_graph()
         network.layout_graph()
         network.set_aesthetics()
-        network.draw_tiled_graph_evolution()
+        network.draw_graph_evolution()
