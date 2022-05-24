@@ -165,7 +165,7 @@ class InclusionNetwork:
                 'startyear': startyear})
 
 
-    def draw_graph_evolution(self):
+    def draw_tiled_graph_evolution(self):
         '''Draws the inclusion network evolution by review "period." Reviews and studies
         new to the respective periods are highlighted in red. From the 
         perspective of drawing attributes, there are N subsets of nodes:
@@ -292,4 +292,4 @@ if __name__ == '__main__':
         network.create_graph()
         network.layout_graph()
         network.set_aesthetics()
-        network.draw_graph_evolution()
+        network.draw_tiled_graph_evolution()
