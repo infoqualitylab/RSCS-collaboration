@@ -41,8 +41,8 @@ class InclusionNetwork:
     def load_cfgs(self, cfgpath):
         with open(cfgpath, 'r') as cfgfile:
             _tmp_cfgs = yaml.load(cfgfile)
-        pathattrs = {'nodescsvpath', 'edgescsvpath'}
-        boolattr = {'tiled'}
+        pathattrs = {'nodescsvpath', 'edgescsvpath', 'nodecoordsjson'}
+        boolattr = {'tiled', 'loadCoords'}
         for k,v in _tmp_cfgs.items():
             if k not in pathattrs and k not in boolattr:
                 self._cfgs[k] = v.strip().lower()
