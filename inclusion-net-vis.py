@@ -264,7 +264,11 @@ class InclusionNetwork:
                         edge_color=self.new_highlight, width=self.edge_width, arrowsize=self.arrow_size)
             else:
                 if self._cfgs['tiled']:
-                    axs[i//2, i%2].set_title('(a) {}, with {}1'.format(period['startyear'],self.review_label))
+                    if self._cfgs['collection'] == 'salt':
+                        axs[i//2, i%2].set_title('(a) {}, with {}1'.format(period['startyear'],self.review_label))
+                    else:
+                        axs[i//2, i%2].set_title('({0}) {1}-{2}, with {3}1-{3}{4}'.format(ascii_lowercase[i],
+                            period['startyear'], period['endyear'], self.review_label, period['maxReviewId']))
                 else:
                     axs.set_title('(a) {}, with {}1'.format(period['startyear'],self.review_label))
 
@@ -287,9 +291,9 @@ class InclusionNetwork:
                 axs[-1, -1].axis('off')
             plt.tight_layout()
             if not self._cfgs['tiled']:
-                plt.savefig('inclusion-net-{}-{}.png'.format(self.engine, i), dpi=300)
+                plt.savefig('{}-inclusion-net-{}-{}.png'.format(self._cfgs['collection'],self.engine, i), dpi=300)
         if self._cfgs['tiled']:
-            plt.savefig('tiled-inclusion-net-{}.png'.format(self.engine), dpi=300)
+            plt.savefig('{}-tiled-inclusion-net-{}.png'.format(self._cfgs['collection'],self.engine), dpi=300)
         
 
 if __name__ == '__main__':
