@@ -1,3 +1,6 @@
+# Example application cycling through all the available pygraphviz layouts
+# which will work (but not necessarily make sense) for the ExRx or Salt 
+# Controversy data.
 import InclusionNetwork
 import argparse
 
