@@ -12,6 +12,7 @@ import argparse
 from math import ceil
 from string import ascii_lowercase
 import yaml
+import json
 
 class InclusionNetwork:
     '''Class to encapsulate the inclusion network over its entire history.'''
@@ -98,6 +99,32 @@ class InclusionNetwork:
         # TODO - remove whatever columns ended up being unused
         nodecoords = pd.DataFrame.from_dict(fullgraphpos, orient='index', 
             columns=['x', 'y'])
+        nodecoords.index.name = self._cfgs['id']
+        nodecoords.reset_index(inplace=True)
+
+        # as separate x, y cols
+        self.nodes = pd.merge(self.nodes, nodecoords)
+
+        # a col of (x, y) pairs
+        self.nodes['coords'] = list(zip(self.nodes.x, self.nodes.y))
+
+        self.edges = pd.merge(self.edges, nodecoords, 
+                left_on='source', right_on=self._cfgs['id'])
+        self.edges = self.edges.drop([self._cfgs['id']],axis=1)
+        self.edges = pd.merge(self.edges, nodecoords, 
+                left_on='target', right_on=self._cfgs['id'], 
+                suffixes=tuple(['_source', '_target']))
+        self.edges = self.edges.drop([self._cfgs['id']], axis=1)
+
+        # tuples for edgelist
+        self.edges['tuples'] = tuple(zip(self.edges.source, self.edges.target))
+
+    def load_layout_json(self):
+        '''Loads a layout exported from Gephi as JSON.'''
+        with open(self._cfgs['nodecoordsjson']) as json_data:
+            data = json.load(json_data)
+    
+        nodecoords = pd.DataFrame(data['nodes'])[['x', 'y']]
         nodecoords.index.name = self._cfgs['id']
         nodecoords.reset_index(inplace=True)
 
