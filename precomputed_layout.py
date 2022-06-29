@@ -1,3 +1,7 @@
+# Example of using a precomputed layout exported from Gephi in JSON format.
+# Instead of calling the InclusionNetwork.layout_graph() method, it calls
+# the load_layout_json() method. The path to the JSON is given in the 
+# Config YAML, see exrx.yml.
 import InclusionNetwork
 import argparse
 
