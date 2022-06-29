@@ -14,10 +14,15 @@ review: "ReviewArticle"
 study: "includeditem"
 
 # absolute path to article attribute CSV
-nodescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/exrx/Article_list.csv
+#nodescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/exrx/Article_list.csv
+nodescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/exrx/Article_list_June_11.csv
 
 # absolute path to inclusion net edges CSV
-edgescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/exrx/inclusion_net_edges.csv
+#edgescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/exrx/inclusion_net_edges.csv
+edgescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/exrx/edited_inclusion_net_edges_June_11.csv
 
 # whether to draw a single tiled image or multiple images
-tiled: False
+tiled: True
+
+# absolute path to Gephi JSON export with x,y coords (optional)
+nodecoordsjson: /home/mvanmoer/Vis/projects/schneider-rscs/data/derived/exrx/exported_f-r_layout.json
