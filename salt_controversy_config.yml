@@ -2,6 +2,7 @@
 # Mappings of CSV column names to InclustionNet class attributes, in the format of:
 # attribute: "column name"
 
+collection: "Salt"
 id: "ID"
 year: "year"
 kind: "Type"
