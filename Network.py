@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import argparse
 import yaml
 import json
+from networkx.drawing.nx_agraph import write_dot
 
 class Network:
     '''Class to wrap networkX and matplotlib calls.'''
@@ -16,15 +17,20 @@ class Network:
         self.nodes = None
         self.edges = None
         self.Graph = None
+        self.node_size = 50
+        self.node_color = '#5f97c2'
+        self.node_shape = 'o'
+        self.edge_width = 0.5
+        self.arrowsize = 5
         self.engine = engine
         self._cfgs = {}
 
-
     def load_cfgs(self, cfgpath):
+        print(f'loading configs from {cfgpath}')
         with open(cfgpath, 'r') as cfgfile:
             _tmp_cfgs = yaml.load(cfgfile)
         pathattrs = {'nodescsvpath', 'edgescsvpath', 'nodecoordsjson'}
-        boolattr = {'tiled', 'loadCoords'}
+        boolattr = {'tiled', 'loadCoords', 'directed'}
         for k,v in _tmp_cfgs.items():
             if k not in pathattrs and k not in boolattr:
                 self._cfgs[k] = v.strip().lower()
@@ -32,6 +38,7 @@ class Network:
                 self._cfgs[k] = v
 
     def load_nodes(self):
+        print('loading nodes')
         self.nodes = pd.read_csv(self._cfgs['nodescsvpath'])
         # clean up the column names for consistency
         self.nodes.columns = self.nodes.columns.str.strip().str.lower()
@@ -39,6 +46,7 @@ class Network:
         self.nodes = self.nodes.applymap(lambda x: x.strip().lower() if type(x) == str else x)
 
     def load_edges(self):
+        print('loading edges')
         self.edges = pd.read_csv(self._cfgs['edgescsvpath'])
         # MVM - this column renaming was originally because other
         # things (Gephi?) assumed 'source' 'target' names
@@ -56,7 +64,12 @@ class Network:
         '''Creates a networkX directed graph for input to layout and 
         drawing algorithms.
         '''
-        self.Graph = nx.DiGraph()
+        print('creating graph')
+        if self._cfgs['directed']:
+            self.Graph = nx.DiGraph()
+        else:
+            self.Graph = nx.Graph()
+
         self.Graph.add_nodes_from(self.nodes[self._cfgs['id']].tolist())
 
         # MVM - why am I doing this in a loop instead of
@@ -74,6 +87,7 @@ class Network:
         interfaces pygraphviz through both/either pydot or agraph. Viable options are:
         neato, dot, twopi, circo, fdp, sfdp
         '''
+        print('laying out graph')
         # layout graph and grab coordinates
         fullgraphpos = nx.nx_agraph.graphviz_layout(self.Graph, prog=self.engine)
 
@@ -132,21 +146,17 @@ class Network:
         '''Set some per-node aesthetics. Note that networkX drawing funcs 
         only accept per-node values for some node attributes, but not all.
         '''
-
-        # add fill colors
-        try:
-            conditions = [
-                self.nodes[self._cfgs['attitude']].eq('inconclusive'),
-                self.nodes[self._cfgs['attitude']].eq('for'),
-                self.nodes[self._cfgs['attitude']].eq('against')
-            ]
-            choices = [self.inconclusive_color, self.for_color, self.against_color]
-            self.nodes['fill'] = np.select(conditions, choices, default='black')
-        except KeyError:
-            self.nodes['fill'] = 'lightgray'
+        # overload in subclasses
+        pass
 
     def draw(self):
-         print('MVM: draw goes here')
+        # overload in subclasses
+        pass
+
+    def write_dot(self):
+        write_dot(self.Graph, './{}-network.dot'.format(self._cfgs['collection']))
+
+        
 
 if __name__ == '__main__':
     
@@ -160,5 +170,4 @@ if __name__ == '__main__':
     network.load_edges()
     network.create_graph()
     network.layout_graph()
-    network.set_aesthetics()
-    network.draw()
+    network.write_dot()
