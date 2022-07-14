@@ -6,7 +6,6 @@ import pandas as pd
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import figure
 import matplotlib.colors as colors
 import argparse
 from math import ceil
