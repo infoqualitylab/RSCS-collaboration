@@ -30,9 +30,12 @@ class Network:
         with open(cfgpath, 'r') as cfgfile:
             _tmp_cfgs = yaml.load(cfgfile)
         pathattrs = {'nodescsvpath', 'edgescsvpath', 'nodecoordsjson'}
-        boolattr = {'tiled', 'loadCoords', 'directed'}
+        boolattrs = {'tiled', 'loadCoords', 'directed'}
+        numericattrs = {'figw', 'figh'}
         for k,v in _tmp_cfgs.items():
-            if k not in pathattrs and k not in boolattr:
+            if k in numericattrs:
+                self._cfgs[k] = float(v)
+            elif k not in pathattrs and k not in boolattrs:
                 self._cfgs[k] = v.strip().lower()
             else:
                 self._cfgs[k] = v
