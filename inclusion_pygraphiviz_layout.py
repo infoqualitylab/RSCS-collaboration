@@ -18,4 +18,4 @@ if __name__ == '__main__':
         network.create_graph()
         network.layout_graph()
         network.set_aesthetics()
-        network.draw_graph_evolution()
+        network.draw()
