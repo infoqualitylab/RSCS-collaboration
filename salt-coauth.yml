@@ -9,6 +9,10 @@ collection: "Salt"
 id: "author_id"
 directed: False
 
+# Figure dimensions in inches
+figw: 5.5
+figh: 4.25
+
 # absolute path to article attribute CSV
 nodescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/salt_coauthor_network_attribute_list.csv
 
