@@ -14,6 +14,8 @@ from string import ascii_lowercase
 import yaml
 import json
 import Network
+from itertools import chain
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 class CoauthorNetwork(Network.Network):
     def __init__(self, engine='neato'):
@@ -22,13 +24,20 @@ class CoauthorNetwork(Network.Network):
         self.edge_color='black'
         self.edge_width = 0.5
         self.node_border = 'black'
+        self.cmap = 'BrBG'
 
     def set_node_aesthetics(self):
-        self.node_size = 10 
+        #self.node_size = 10 
+        # little test on seeing if sizing by degree does anything
+        # returns a dictionary of {nodeid:degree} k,v pairs
+        degrees = nx.degree(self.Graph)
+        self.node_size = [v for k,v in degrees]
         self.node_color = '#e05b5b'
         self.node_shape = 'o'
         #self.node_border = '#a14242'
-        self.node_border = None
+        self.node_border = 'white'
+        self.linewidths = 0.5
+        self.cmap = 'viridis'
 
     def set_edge_aesthetics(self):
         self.arrowsize = 5
@@ -46,30 +55,89 @@ class CoauthorNetwork(Network.Network):
         a = ((self.edges['no_of_reports_coauthored'] - coauth_min)/(coauth_max - coauth_min)) * 0.9 + 0.1
         self.edges['rgba'] = tuple(zip(r, g, b, a))
 
- 
-    def draw(self):
-        '''Default drawing is of a single static image using self.engine for layout.'''
-        print('drawing graph')
-        fig, axs = plt.subplots()
-        # self.nodes is a pandas dataframe with x, y, and coords cols.
-        nodespos = dict(self.nodes[[self._cfgs['id'], 'coords']].values)
+    def _draw_nodes(self, nodespos):
         nx.draw_networkx_nodes(self.Graph, nodespos, 
                 node_color=self.node_color, 
                 node_size=self.node_size, 
                 node_shape=self.node_shape, 
                 alpha=self.node_alpha,
+                linewidths=self.linewidths,
                 edgecolors=self.node_border)
 
+    def _draw_cmap_nodes(self, nodespos):
+        n = nx.draw_networkx_nodes(self.Graph, nodespos,
+                cmap = self.cmap,
+                vmin = self.nodes['percent_srrs'].min(),
+                vmax = self.nodes['percent_srrs'].max(),
+                node_color = self.nodes['percent_srrs'],
+                node_shape=self.node_shape,
+                node_size=self.node_size,
+                alpha=self.node_alpha,
+                edgecolors=self.node_border)
+        return n
+
+    def _draw_edges(self, nodespos):
         # for edge_color, want a list of tuples
         nx.draw_networkx_edges(self.Graph, nodespos, 
                 arrowsize=self.arrowsize,
                 width=self.edge_width, 
                 node_size=self.node_size, 
                 edge_color=self.edges['rgba'])
-        axs.set_title('{} coauthor network'.format(self._cfgs['collection']))
+    
+    def _draw_cmap_edges(self, nodespos):
+        nx.draw_networkx_edges(self.Graph, nodespos, 
+                edge_cmap=self.cmap,
+                edge_vmin=self.edges['percent_srrs'].min(),
+                edge_vmax=self.edges['percent_srrs'].max(),
+                edge_color=self.edges['percent_srrs'],
+                arrowsize=self.arrowsize,
+                width=self.edge_width, 
+                node_size=self.node_size)
+                
+
+
+    def draw(self, useCmap=''):
+        '''Default drawing is of a single static image using self.engine for layout.'''
+        print('drawing graph')
+        fig, axs = plt.subplots()
+        plt.figure(figsize=(self._cfgs['figw'],self._cfgs['figh']))
+        #plt.rcParams['font.size'] = 14
+        # self.nodes is a pandas dataframe with x, y, and coords cols.
+        nodespos = dict(self.nodes[[self._cfgs['id'], 'coords']].values)
+        n = None
+        if useCmap == 'nodes':
+            n = self._draw_cmap_nodes(nodespos)
+            self._draw_edges(nodespos)
+        elif useCmap == 'edges':
+            self._draw_nodes(nodespos)
+            self._draw_cmap_edges(nodespos)
+        else:
+            self._draw_nodes(nodespos)
+            self._draw_edges(nodespos)
+
+        plt.title('{} coauthor network'.format(self._cfgs['collection']))
         plt.axis('off')
         plt.tight_layout()
+        #sm = plt.cm.ScalarMappable(cmap=self.cmap)
+        #sm.set_array([])
+        #cbaxes = inset_axes(axs, width='30%', height='3%', loc=3)
+        #plt.colorbar(sm,cax=cbaxes)
+        fig.colorbar(n, cmap=self.cmap)
         plt.savefig('{}-network-{}.png'.format(self._cfgs['collection'], self.engine), dpi=300)
+
+    def filter_connected_components(self):
+        # really, just the two largest, not all.
+        # nx.connected_components returns a generator of sets
+        comps = [_ for _ in sorted(nx.connected_components(self.Graph), key=len, reverse=True)]
+        top2comps = comps[:2]
+        smallercomps = comps[2:]
+        # want to combine those two sets and then filter
+        top2compnodes = top2comps[0].union(top2comps[1])
+        self.nodes = self.nodes[self.nodes['author_id'].isin(top2compnodes)]
+
+        # also want to remove other nodes from self.Graph 
+        smallercompnodes = list(chain.from_iterable(smallercomps))
+        self.Graph.remove_nodes_from(smallercompnodes)
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='draw a static network')
