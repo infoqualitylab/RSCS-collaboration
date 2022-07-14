@@ -8,6 +8,8 @@ year: "year"
 kind: "Type"
 attitude: "Attitude"
 
+directed: True
+
 # enumeration of kinds
 review: "Systematic Review"
 study: "Primary Study Report"
