@@ -11,6 +11,7 @@ if __name__ == '__main__':
 
     # coauthur network hangs on dot and circo layouts.
     layouts = ['neato', 'twopi', 'fdp', 'sfdp']
+    #layouts = ['neato']
     for layout in layouts:
         print(f'starting on {layout} layout')
         network = CoauthorNetwork.CoauthorNetwork(engine=layout)
@@ -18,7 +19,8 @@ if __name__ == '__main__':
         network.load_nodes()
         network.load_edges()
         network.create_graph()
+        #network.filter_connected_components()
         network.layout_graph()
         network.set_node_aesthetics()
         network.set_edge_aesthetics()
-        network.draw()
+        network.draw(useCmap='nodes')
