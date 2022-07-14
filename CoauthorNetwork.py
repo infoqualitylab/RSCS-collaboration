@@ -13,11 +13,11 @@ from math import ceil
 from string import ascii_lowercase
 import yaml
 import json
-import Network
+import IQLNetwork
 from itertools import chain
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-class CoauthorNetwork(Network.Network):
+class CoauthorNetwork(IQLNetwork.IQLNetwork):
     def __init__(self, engine='neato'):
         super().__init__(engine)
         self.node_alpha = 1.0

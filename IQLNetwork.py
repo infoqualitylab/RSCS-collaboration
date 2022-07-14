@@ -11,7 +11,7 @@ import yaml
 import json
 from networkx.drawing.nx_agraph import write_dot
 
-class Network:
+class IQLNetwork:
     '''Class to wrap networkX and matplotlib calls.'''
     def __init__(self, engine='neato'):
         self.nodes = None

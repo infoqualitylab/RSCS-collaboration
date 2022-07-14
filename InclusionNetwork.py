@@ -13,9 +13,9 @@ from math import ceil
 from string import ascii_lowercase
 import yaml
 import json
-import Network
+import IQLNetwork
 
-class InclusionNetwork(Network.Network):
+class InclusionNetwork(IQLNetwork.IQLNetwork):
     '''Class to encapsulate the inclusion network over its entire history.'''
     def __init__(self, engine='neato'):
         self.nodes = None
