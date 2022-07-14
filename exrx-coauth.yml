@@ -1,0 +1,20 @@
+---
+collection: "ExRx"
+
+# Mappings of CSV column names to InclustionNet class attributes, in the format of:
+# attribute: "column name"
+# The only required attrs are ones that might change or need special handling
+# in the application. The rest just get read in as expected.
+
+id: "author_id"
+directed: False
+
+# figure dimensions, in inches. 
+figw: 11
+figh: 8.5
+
+# absolute path to article attribute CSV
+nodescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/ExRx_coauthor_network_attribute_list.csv
+
+# absolute path to inclusion net edges CSV
+edgescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/ExRx_coauthor_network_edgelist.csv
