@@ -138,11 +138,22 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         plt.title('{} coauthor network'.format(self._cfgs['collection']))
         plt.axis('off')
         plt.tight_layout()
-        #sm = plt.cm.ScalarMappable(cmap=self.cmap)
-        #sm.set_array([])
-        #cbaxes = inset_axes(axs, width='30%', height='3%', loc=3)
-        #plt.colorbar(sm,cax=cbaxes)
-        fig.colorbar(n, cmap=self.cmap)
+        # this works, but the bar is ugly!
+        '''
+        sm = plt.cm.ScalarMappable(cmap=self.cmap)
+        sm.set_array([])
+        cb = plt.colorbar(
+                sm,
+                drawedges=False, 
+                fraction=0.05, 
+                shrink=0.3,
+                ticks=None,
+                format='%.1f')
+        cb.outline.set_visible(False)
+        cb.ax.tick_params(labelsize=8)
+        '''
+
+        #plt.legend(['a', 'b', 'c'])
         plt.savefig('{}-network-{}.png'.format(self._cfgs['collection'], self.engine), dpi=300)
 
     def filter_connected_components(self):
