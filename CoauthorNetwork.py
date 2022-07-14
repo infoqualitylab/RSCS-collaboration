@@ -25,18 +25,38 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         self.node_border = 'black'
         self.cmap = 'BrBG'
 
-    def set_node_aesthetics(self):
-        #self.node_size = 10 
-        # little test on seeing if sizing by degree does anything
-        # returns a dictionary of {nodeid:degree} k,v pairs
-        degrees = nx.degree(self.Graph)
-        self.node_size = [v for k,v in degrees]
+    def set_node_aesthetics(self, const_size=True):
+        if const_size:
+            self.node_size = 10 
+        else:
+            # returns a dictionary of {nodeid:degree} k,v pairs
+            degrees = nx.degree(self.Graph)
+            self.node_size = [v for k,v in degrees]
         self.node_color = '#e05b5b'
         self.node_shape = 'o'
         #self.node_border = '#a14242'
+        self.cmap = 'viridis'
+        # for categorical coloring where percent_srrs is cut into
+        # [0.0, 1.0], (0.1, 0.9], (0.9, 1.0]
+        self.nodes['cut'] = pd.cut(self.nodes['percent_srrs'],
+                [0.0, 0.1, 0.9, 1.0], include_lowest=True)
+        self.nodes['fill'] = None    
+        try:
+            conditions = [
+                    self.nodes['cut']==pd.Interval(-0.001,0.1,closed='right'),
+                    self.nodes['cut']==pd.Interval(0.1,0.9,closed='right'),
+                    self.nodes['cut']==pd.Interval(0.9,1.0,closed='right')
+                    ]
+            # colors from Colorbrewer categorical colorblind safe qualitative
+            choices = ['#66c2a5','#fc8d62','#8da0cb']
+            self.nodes['fill'] = np.select(conditions, choices, default='black')
+        except KeyError:
+            self.nodes['fill'] = 'lightgray'
+
         self.node_border = 'white'
         self.linewidths = 0.5
-        self.cmap = 'viridis'
+
+
 
     def set_edge_aesthetics(self):
         self.arrowsize = 5
@@ -56,7 +76,8 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
 
     def _draw_nodes(self, nodespos):
         nx.draw_networkx_nodes(self.Graph, nodespos, 
-                node_color=self.node_color, 
+                #node_color=self.node_color, 
+                node_color=self.nodes['fill'],
                 node_size=self.node_size, 
                 node_shape=self.node_shape, 
                 alpha=self.node_alpha,
