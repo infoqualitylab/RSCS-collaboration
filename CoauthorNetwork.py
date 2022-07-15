@@ -21,7 +21,7 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         super().__init__(engine)
         self.node_alpha = 1.0
         self.edge_color='black'
-        self.edge_width = 0.5
+        self.edge_width = 1.0
         self.node_border = 'black'
         self.cmap = 'BrBG'
 
@@ -36,6 +36,7 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         self.node_shape = 'o'
         #self.node_border = '#a14242'
         self.cmap = 'viridis'
+        '''
         # for categorical coloring where percent_srrs is cut into
         # [0.0, 1.0], (0.1, 0.9], (0.9, 1.0]
         self.nodes['cut'] = pd.cut(self.nodes['percent_srrs'],
@@ -52,17 +53,38 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
             self.nodes['fill'] = np.select(conditions, choices, default='black')
         except KeyError:
             self.nodes['fill'] = 'lightgray'
+        '''
+        self.nodes['fill'] = 'darkgray'
 
-        self.node_border = 'white'
+        self.node_border = 'lightgray'
         self.linewidths = 0.5
 
 
 
     def set_edge_aesthetics(self):
-        self.arrowsize = 5
+
+        # for categorical coloring where percent_srrs is cut into
+        # [0.0, 1.0], (0.1, 0.9], (0.9, 1.0]
+        self.edges['cut'] = pd.cut(self.edges['percent_srrs'],
+                [0.0, 0.1, 0.9, 1.0], include_lowest=True)
+        self.edges['fill'] = None    
+        try:
+            conditions = [
+                    self.edges['cut']==pd.Interval(-0.001,0.1,closed='right'),
+                    self.edges['cut']==pd.Interval(0.1,0.9,closed='right'),
+                    self.edges['cut']==pd.Interval(0.9,1.0,closed='right')
+                    ]
+            # colors from Colorbrewer categorical colorblind safe qualitative
+            choices = ['#66c2a544','#fc8d62cc','#8da0cbcc']
+            self.edges['fill'] = np.select(conditions, choices, default='black')
+        except KeyError:
+            self.edges['fill'] = 'lightgray'
 
         coauth_min = self.edges['no_of_reports_coauthored'].min()
         coauth_max = self.edges['no_of_reports_coauthored'].max()
+
+        ''' 
+        # this is the original
         # per edge opacity needs to be done as a RGBA tuple ranges [0,1]
         # edge color rather than as alpha parameter in draw_networkx_edges().
         r = [colors.hex2color(self.edge_color)[0]] * len(self.edges)
@@ -73,6 +95,8 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         # visibility.
         a = ((self.edges['no_of_reports_coauthored'] - coauth_min)/(coauth_max - coauth_min)) * 0.9 + 0.1
         self.edges['rgba'] = tuple(zip(r, g, b, a))
+        '''
+        # this is for coloring by the cuts
 
     def _draw_nodes(self, nodespos):
         nx.draw_networkx_nodes(self.Graph, nodespos, 
@@ -102,7 +126,8 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
                 arrowsize=self.arrowsize,
                 width=self.edge_width, 
                 node_size=self.node_size, 
-                edge_color=self.edges['rgba'])
+                #edge_color=self.edges['rgba'])
+                edge_color=self.edges['fill'])
     
     def _draw_cmap_edges(self, nodespos):
         nx.draw_networkx_edges(self.Graph, nodespos, 
