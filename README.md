@@ -1,4 +1,4 @@
-# IQL/RSCS collaboration on visualizing inclusion networks and coauthor networks 
+# Information Quality Lab/Research Software Collaborative Services collaboration on visualizing inclusion networks and coauthor networks 
 
 
 The are three class files: 
