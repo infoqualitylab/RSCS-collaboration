@@ -18,6 +18,7 @@ import IQLNetwork
 class InclusionNetwork(IQLNetwork.IQLNetwork):
     '''Class to encapsulate the inclusion network over its entire history.'''
     def __init__(self, engine='neato'):
+        super().__init__()
         self.nodes = None
         self.edges = None
         self.Graph = None
