@@ -10,6 +10,7 @@ import argparse
 import yaml
 import json
 from networkx.drawing.nx_agraph import write_dot
+import sys
 
 class IQLNetwork:
     '''Class to wrap networkX and matplotlib calls.'''
@@ -24,6 +25,7 @@ class IQLNetwork:
         self.arrowsize = 5
         self.engine = engine
         self._cfgs = {}
+        self._encodings = ['utf8', 'cp1252']
 
     def load_cfgs(self, cfgpath):
         print(f'loading configs from {cfgpath}')
@@ -42,7 +44,20 @@ class IQLNetwork:
 
     def load_nodes(self):
         print('loading nodes')
-        self.nodes = pd.read_csv(self._cfgs['nodescsvpath'])
+        
+        # CSV's saved on Windows machines will likely use Windows-1252 code page
+        # for text encoding. CSV's saved on Linux (and possibly OS X) will 
+        # likely use utf-8. 
+        for e in self._encodings:
+            try:
+                self.nodes = pd.read_csv(self._cfgs['nodescsvpath'], encoding=e)
+            except UnicodeDecodeError:
+                print(f'error with {e}, attempting another encoding...')
+            else:
+                print(f'file opened with {e} encoding')
+            finally:
+                print('CSV not in UTF-8 nor Windows-1252, exiting.')
+                sys.exit(1)
         # clean up the column names for consistency
         self.nodes.columns = self.nodes.columns.str.strip().str.lower()
         # strip string column data
@@ -50,7 +65,17 @@ class IQLNetwork:
 
     def load_edges(self):
         print('loading edges')
-        self.edges = pd.read_csv(self._cfgs['edgescsvpath'])
+       
+        for e in self._encodings:
+            try:
+                self.edges = pd.read_csv(self._cfgs['edgescsvpath'])
+            except UnicodeDecodeError:
+                print(f'error with {e}, attempting another encoding...')
+            else:
+                print(f'file opened with {e} encoding')
+            finally:
+                print('CSV not in UTF-8 nor Windows-1252, exiting.')
+                sys.exit(1)
         # MVM - this column renaming was originally because other
         # things (Gephi?) assumed 'source' 'target' names
         # MVM - change this to a check if 'source' 'target' not there
