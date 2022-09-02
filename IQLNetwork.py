@@ -79,7 +79,7 @@ class IQLNetwork:
         # MVM - change this to a check if 'source' 'target' not there
         # or to a YAML attr
         self.edges = self.edges.rename(
-                columns={'citing_ID':'source','cited_ID':'target'}
+                columns={'citing_id':'source','cited_id':'target'}
                 )
 
         # drop any rows where source or target are NaNs
