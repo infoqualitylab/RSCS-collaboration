@@ -43,39 +43,37 @@ class IQLNetwork:
                 self._cfgs[k] = v
 
     def load_nodes(self):
-        print('loading nodes')
+        print('attempting to load nodes from {}'.format(self._cfgs['nodescsvpath']))
         
         # CSV's saved on Windows machines will likely use Windows-1252 code page
         # for text encoding. CSV's saved on Linux (and possibly OS X) will 
         # likely use utf-8. 
         for e in self._encodings:
+            print(f'trying {e} encoding')
             try:
                 self.nodes = pd.read_csv(self._cfgs['nodescsvpath'], encoding=e)
             except UnicodeDecodeError:
                 print(f'error with {e}, attempting another encoding...')
             else:
                 print(f'file opened with {e} encoding')
-            finally:
-                print('CSV not in UTF-8 nor Windows-1252, exiting.')
-                sys.exit(1)
+                break
         # clean up the column names for consistency
         self.nodes.columns = self.nodes.columns.str.strip().str.lower()
         # strip string column data
         self.nodes = self.nodes.applymap(lambda x: x.strip().lower() if type(x) == str else x)
 
     def load_edges(self):
-        print('loading edges')
+        print('attempting to load edges from {}'.format(self._cfgs['edgescsvpath']))
        
         for e in self._encodings:
+            print(f'trying {e} encoding')
             try:
                 self.edges = pd.read_csv(self._cfgs['edgescsvpath'])
             except UnicodeDecodeError:
                 print(f'error with {e}, attempting another encoding...')
             else:
                 print(f'file opened with {e} encoding')
-            finally:
-                print('CSV not in UTF-8 nor Windows-1252, exiting.')
-                sys.exit(1)
+                break 
         # MVM - this column renaming was originally because other
         # things (Gephi?) assumed 'source' 'target' names
         # MVM - change this to a check if 'source' 'target' not there
