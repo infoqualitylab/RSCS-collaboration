@@ -65,6 +65,7 @@ class IQLNetwork:
     def load_edges(self):
         print('attempting to load edges from {}'.format(self._cfgs['edgescsvpath']))
        
+        
         for e in self._encodings:
             print(f'trying {e} encoding')
             try:
@@ -78,13 +79,14 @@ class IQLNetwork:
         # things (Gephi?) assumed 'source' 'target' names
         # MVM - change this to a check if 'source' 'target' not there
         # or to a YAML attr
+        self.edges.columns = self.edges.columns.str.strip().str.lower()
         self.edges = self.edges.rename(
                 columns={'citing_id':'source','cited_id':'target'}
                 )
 
         # drop any rows where source or target are NaNs
-        self.edges = self.edges[self.edges.target.notnull()]
-        self.edges = self.edges[self.edges.source.notnull()]
+        self.edges = self.edges[self.edges['target'].notnull()]
+        self.edges = self.edges[self.edges['source'].notnull()]
 
     def create_graph(self):
         '''Creates a networkX directed graph for input to layout and 
