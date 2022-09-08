@@ -9,6 +9,8 @@ kind: "Our Item Type"
 # empty string when unused
 attitude: ""
 
+directed: True
+
 # enumeration of kinds
 review: "ReviewArticle"
 study: "includeditem"
@@ -22,7 +24,7 @@ nodescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/exrx/Arti
 edgescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/exrx/edited_inclusion_net_edges_June_11.csv
 
 # whether to draw a single tiled image or multiple images
-tiled: True
+tiled: False
 
 # absolute path to Gephi JSON export with x,y coords (optional)
 nodecoordsjson: /home/mvanmoer/Vis/projects/schneider-rscs/data/derived/exrx/exported_f-r_layout.json
