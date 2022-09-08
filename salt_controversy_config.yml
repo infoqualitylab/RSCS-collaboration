@@ -21,4 +21,4 @@ nodescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/2021Summe
 edgescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/2021Summer--network-visualization/Esther_salt_controversy_vis/inclusion_net_edges.csv
 
 # whether to draw tiled output or multiple images
-tiled: True 
+tiled: False 
