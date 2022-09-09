@@ -47,7 +47,8 @@ class IQLNetwork:
         
         # CSV's saved on Windows machines will likely use Windows-1252 code page
         # for text encoding. CSV's saved on Linux (and possibly OS X) will 
-        # likely use utf-8. 
+        # likely use utf-8. It all comes down to if a file
+        # has data outside the Latin 1 charset and in particular, what.
         for e in self._encodings:
             print(f'trying {e} encoding')
             try:
