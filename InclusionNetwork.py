@@ -111,9 +111,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             edges = self.edges[(self.edges['source'].isin(nodes[self._cfgs['id']])) & (self.edges['target'].isin(nodes[self._cfgs['id']]))]
 
             maxReviewId = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['id']].max()
-            startyear = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['year']].min()
-            self.periods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxReviewId':maxReviewId, 
-                'startyear': startyear})
+            
+            self.periods.append({'searchyear': y, 'nodes': nodes, 'edges': edges, 'maxReviewId':maxReviewId})
 
 
     def draw(self):
@@ -184,17 +183,21 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             # used to draw edges and node-labels.
             nodepos = dict(period['nodes'][[self._cfgs['id'], 'coords']].values)
 
+            # for printing in title
+            srslist = period['nodes'][period['nodes']['our_item_type'] == self._cfgs['review']]['our_id'].tolist()
+
+            # set the axes title
+            if self._cfgs['tiled']:
+                axs[i//2, i%2].set_title('({}) search year: {}'.format(ascii_lowercase[i],
+                    period['searchyear'])) 
+            else:
+                axs.set_title('({}) search year: {}'.format(ascii_lowercase[i],
+                    period['searchyear'])) 
+
             if i > 0:
                 # this if case is to only draw the red outlines after the first 
                 # review period.
 
-                # set the axes title
-                if self._cfgs['tiled']:
-                    axs[i//2, i%2].set_title('({0}) {1}-{2}, with {3}1-{3}{4}'.format(ascii_lowercase[i],
-                        period['startyear'], period['endyear'], self.review_label, period['maxReviewId']))
-                else:
-                    axs.set_title('({0}) {1}-{2}, with {3}1-{3}{4}'.format(ascii_lowercase[i],
-                        period['startyear'], period['endyear'], self.review_label, period['maxReviewId']))
                 # split nodes on old vs new 
                 old_nodes, new_nodes = _split_old_new(i, period)
                 # reviews after studies and new after old so they're on top
@@ -213,14 +216,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges['tuples'].to_list(), 
                         edge_color=self.new_highlight, width=self.edge_width, arrowsize=self.arrow_size)
             else:
-                if self._cfgs['tiled']:
-                    if self._cfgs['collection'] == 'salt':
-                        axs[i//2, i%2].set_title('(a) {}, with {}1'.format(period['startyear'],self.review_label))
-                    else:
-                        axs[i//2, i%2].set_title('({0}) {1}-{2}, with {3}1-{3}{4}'.format(ascii_lowercase[i],
-                            period['startyear'], period['endyear'], self.review_label, period['maxReviewId']))
-                else:
-                    axs.set_title('(a) {}, with {}1'.format(period['startyear'],self.review_label))
 
                 # first time through, don't split on old v. new
                 _draw_sub_nodes(period['nodes'], self._cfgs['study'], self.study_shape)
