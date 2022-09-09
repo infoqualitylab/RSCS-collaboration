@@ -40,7 +40,29 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         # which contain keys for the year of the current period,
         # the nodes, and the edges visible in that period.
         self.periods = []
-        
+    
+    def load_nodes(self):
+        # This is an wrapper rather than a pure override because node info is in two
+        # files and we can still use the original one.
+        IQLNetwork.IQLNetwork.load_nodes(self)
+
+        print('attempting to load review article details from: {}'.format(self._cfgs['reviewdetailscsvpath']))
+        for e in self._encodings:
+            print(f'trying {e} encoding')
+            try:
+                reviewdetails = pd.read_csv(self._cfgs['reviewdetailscsvpath'], encoding=e)
+            except UnicodeDecodeError:
+                print(f'error with {e}, attempting another encoding...')
+            else:
+                print(f'file opened with {e} encoding')
+                break
+
+        tmp = reviewdetails[['our_id', 'search_year']]
+        # note that after the merge, review articles will have a search_year that makes sense
+        # but included items won't, consequently these will be NaN's and the column type
+        # will be float instead of int.
+        self.nodes = self.nodes.merge(tmp, how='left')
+
     def set_aesthetics(self):
         '''Set some per-node aesthetics. Note that networkX drawing funcs 
         only accept per-node values for some node attributes, but not all.
@@ -77,12 +99,17 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         # aren't duplicates in memory. However, this complicates some of the
         # drawing logic.
 
-        # loop over unique review years grabbing just nodes <= y
-        uniquePeriods = self.nodes[self.nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['year']].unique()
+        # loop over unique search years grabbing just nodes <= y
+        searchPeriods = self.nodes[self.nodes['our_item_type'] == self._cfgs['review']]['search_year'].unique().astype(int)
         
-        for i, y in enumerate(uniquePeriods):
-            nodes = self.nodes[self.nodes[self._cfgs['year']] <= y]
-            edges = self.edges[self.edges['source'].isin(nodes[self._cfgs['id']])]
+        for y in sorted(searchPeriods):
+            
+            searchPeriodSRs = self.nodes[(self.nodes['our_item_type'] == self._cfgs['review']) & (self.nodes['search_year'] <= y)]
+            searchPeriodPSRs = self.nodes[(self.nodes['our_item_type'] == self._cfgs['study']) & (self.nodes['publication_year'] <= y)]
+            nodes = pd.concat([searchPeriodSRs,searchPeriodPSRs])
+
+            edges = self.edges[(self.edges['source'].isin(nodes[self._cfgs['id']])) & (self.edges['target'].isin(nodes[self._cfgs['id']]))]
+
             maxReviewId = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['id']].max()
             startyear = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['year']].min()
             self.periods.append({'endyear': y, 'nodes': nodes, 'edges': edges, 'maxReviewId':maxReviewId, 
