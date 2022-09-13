@@ -17,4 +17,4 @@ if __name__ == '__main__':
     network.create_graph()
     network.load_layout_json()
     network.set_aesthetics()
-    network.draw_graph_evolution()
+    network.draw()
