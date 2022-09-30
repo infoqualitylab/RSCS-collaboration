@@ -132,8 +132,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             
             self.periods.append({'searchyear': y, 'nodes': nodes, 'edges': edges})
 
-        import pdb; pdb.set_trace()
-
     def draw(self):
         '''Draws the inclusion network evolution by review "period." Reviews and studies
         new to the respective periods are highlighted in red. From the 
