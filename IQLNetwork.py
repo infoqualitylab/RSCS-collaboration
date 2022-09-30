@@ -30,7 +30,7 @@ class IQLNetwork:
     def load_cfgs(self, cfgpath):
         print(f'loading configs from {cfgpath}')
         with open(cfgpath, 'r') as cfgfile:
-            _tmp_cfgs = yaml.load(cfgfile)
+            _tmp_cfgs = yaml.load(cfgfile, Loader=yaml.FullLoader)
         pathattrs = {'nodescsvpath', 'edgescsvpath', 'reviewdetailscsvpath', 'nodecoordsjson'}
         boolattrs = {'tiled', 'loadCoords', 'directed'}
         numericattrs = {'figw', 'figh'}
