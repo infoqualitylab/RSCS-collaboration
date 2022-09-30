@@ -281,8 +281,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 plt.savefig('{}-inclusion-net-{}-{}.png'.format(self._cfgs['collection'],self.engine, i), dpi=300)
 
             plt.clf()
-            #plt.cla()
-            #plt.close()
 
         if self._cfgs['tiled']:
             plt.savefig('{}-tiled-inclusion-net-{}.png'.format(self._cfgs['collection'],self.engine), dpi=300)
