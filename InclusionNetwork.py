@@ -95,6 +95,14 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         self.nodes['labels'] = np.where(self.nodes[self._cfgs['kind']] == self._cfgs['review'], 
                 self.review_label + self.nodes.labels, self.nodes.labels)
 
+        # get node degrees for sizing. nx.degree() returns a DiDegreeView, which is
+        # a wrapper around a dictionary. 
+        degsView = nx.degree(self.Graph)
+        degsDF = pd.DataFrame.from_dict(degsView)
+        degsDF.columns = [self._cfgs['id'], 'degree']
+        self.nodes = self.nodes.merge(degsDF)
+        self.nodes['degree'] = self.nodes['degree'] * 5
+
     def _gather_periods(self):
         # NOTE: This method is not intended to be called directly.
         # The idea is that the evolution of the inclusion net is mainly 
