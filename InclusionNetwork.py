@@ -69,7 +69,9 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 print(f'file opened with {e} encoding')
                 break
 
-        tmp = reviewdetails[['our_id', 'search_year']]
+        reviewdetails.columns = reviewdetails.columns.str.strip().str.lower()
+
+        tmp = reviewdetails[[self._cfgs['id'], self._cfgs['searchyear']]]
         # note that after the merge, review articles will have a search_year that makes sense
         # but included items won't, consequently these will be NaN's and the column type
         # will be float instead of int.
@@ -118,20 +120,19 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         # drawing logic.
 
         # loop over unique search years grabbing just nodes <= y
-        searchPeriods = self.nodes[self.nodes['our_item_type'] == self._cfgs['review']]['search_year'].unique().astype(int)
+        searchPeriods = self.nodes[self.nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['searchyear']].unique().astype(int)
         
         for y in sorted(searchPeriods):
             
-            searchPeriodSRs = self.nodes[(self.nodes['our_item_type'] == self._cfgs['review']) & (self.nodes['search_year'] <= y)]
-            searchPeriodPSRs = self.nodes[(self.nodes['our_item_type'] == self._cfgs['study']) & (self.nodes['publication_year'] <= y)]
+            searchPeriodSRs = self.nodes[(self.nodes[self._cfgs['kind']] == self._cfgs['review']) & (self.nodes[self._cfgs['searchyear']] <= y)]
+            searchPeriodPSRs = self.nodes[(self.nodes[self._cfgs['kind']] == self._cfgs['study']) & (self.nodes[self._cfgs['year']] <= y)]
             nodes = pd.concat([searchPeriodSRs,searchPeriodPSRs])
 
             edges = self.edges[(self.edges['source'].isin(nodes[self._cfgs['id']])) & (self.edges['target'].isin(nodes[self._cfgs['id']]))]
-
-            maxReviewId = nodes[nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['id']].max()
             
-            self.periods.append({'searchyear': y, 'nodes': nodes, 'edges': edges, 'maxReviewId':maxReviewId})
+            self.periods.append({'searchyear': y, 'nodes': nodes, 'edges': edges})
 
+        import pdb; pdb.set_trace()
 
     def draw(self):
         '''Draws the inclusion network evolution by review "period." Reviews and studies
@@ -152,7 +153,15 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         Shape however requires splitting because networkX (and matplotlib)
         will only accept a single shape per draw function.
         '''
-       
+        # creates the periods list
+        self._gather_periods()
+
+        if self.fixed_coords:
+            self._draw_fixed()
+        else:
+            self._draw_free()
+      
+    def _draw_fixed(self):
         # MVM: inner func or method?
         # drawing with nx.draw_networkx_{nodes|edges}
         # this way requires that the subsets be dictionaries where the
@@ -161,10 +170,12 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             # grab the subset of review vs study kind
             subnodes = nodes[nodes[self._cfgs['kind']] == kind]
             # convert to dict for networkX
+            # for sizing by degree, change node_size to subnodes['degree'].to_list()
             subnodespos = dict(subnodes[[self._cfgs['id'], 'coords']].values)
+            
             nx.draw_networkx_nodes(self.Graph, subnodespos, nodelist=subnodespos.keys(),
-                    node_color=subnodes['fill'].to_list(), node_size=self.node_size,
-                    node_shape=shape, edgecolors=edge)
+                node_color=subnodes['fill'].to_list(), node_size=self.node_size,
+                node_shape=shape, edgecolors=edge)
 
         def _split_old_new(i, period, component='nodes'):
             # distinguish new nodes from old nodes by doing an anti-join
@@ -180,9 +191,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             old = tmp[tmp['_merge'] == 'both']
             new = tmp[tmp['_merge'] == 'left_only']
             return old, new
-
-        # creates the periods list
-        self._gather_periods()
 
         # matplotlib setup for tiled subplots
         if self._cfgs['tiled']:
@@ -203,7 +211,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             nodepos = dict(period['nodes'][[self._cfgs['id'], 'coords']].values)
 
             # for printing in title
-            srslist = period['nodes'][period['nodes']['our_item_type'] == self._cfgs['review']]['our_id'].tolist()
+            srslist = period['nodes'][period['nodes'][self._cfgs['kind']] == self._cfgs['review']][self._cfgs['id']].tolist()
 
             # set the axes title
             if self._cfgs['tiled']:
@@ -213,7 +221,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 axs.set_title('({}) search year: {}'.format(ascii_lowercase[i],
                     period['searchyear'])) 
 
-            if i > 0:
+            if i > 0 and self.highlight_new:
                 # this if case is to only draw the red outlines after the first 
                 # review period.
 
@@ -222,7 +230,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 # reviews after studies and new after old so they're on top
                 _draw_sub_nodes(old_nodes, self._cfgs['study'], self.study_shape, self.study_color)
                 _draw_sub_nodes(new_nodes, self._cfgs['study'], self.study_shape, self.new_highlight)
-                PSRs = period['nodes'].loc[period['nodes']['our_item_type'] == 'includeditem']
+                PSRs = period['nodes'].loc[period['nodes'][self._cfgs['kind']] == self._cfgs['study']]
                 PSRpos = dict(PSRs[[self._cfgs['id'],'coords']].values)
                 nx.draw_networkx_labels(self.Graph, PSRpos,
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
@@ -240,10 +248,9 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges['tuples'].to_list(), 
                         edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=5)
             else:
-
-                # first time through, don't split on old v. new
+                # don't split on old v. new
                 _draw_sub_nodes(period['nodes'], self._cfgs['study'], self.study_shape)
-                PSRs = period['nodes'].loc[period['nodes']['our_item_type'] == 'includeditem']
+                PSRs = period['nodes'].loc[period['nodes'][self._cfgs['kind']] == self._cfgs['study']]
                 PSRpos = dict(PSRs[[self._cfgs['id'],'coords']].values)
                 nx.draw_networkx_labels(self.Graph, PSRpos,
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
@@ -255,20 +262,11 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         
             # labels are all drawn with the same style regardles of node kind 
             # so no separation is necessary
-            '''
-            nx.draw_networkx_labels(self.Graph, nodepos, 
-                    labels = dict(period['nodes'][[self._cfgs['id'], 'labels']].values),
-                    font_size=6, font_color='#1a1a1a')
-
-            '''
-
-            SRs = period['nodes'].loc[period['nodes']['our_item_type'] == 'reviewarticle']
+            SRs = period['nodes'].loc[period['nodes'][self._cfgs['kind']] == self._cfgs['review']]
             SRpos = dict(SRs[[self._cfgs['id'],'coords']].values)
             nx.draw_networkx_labels(self.Graph, SRpos,
                     labels = dict(SRs[[self._cfgs['id'],'labels']].values),
                     font_size=6, font_color='#1a1a1a')
-
-            
 
             plt.axis('off')
 
