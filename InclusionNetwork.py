@@ -22,6 +22,9 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         self.nodes = None
         self.edges = None
         self.Graph = None
+        self.highlight_new = False
+        self.fixed_coords = True
+
         # Here's a thought question, what units are these in? Not pixels...
         self.node_size = 25
         self.edge_width = 0.5
@@ -37,7 +40,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         #self.review_edgecolor = '
 
         self.study_shape = 'o'
-        self.study_color = '#dddddd77'
+        self.study_color = 'lightgrey'
         self.study_edgecolor = '#b889c933'
 
         self.edge_color = 'lightgray'
