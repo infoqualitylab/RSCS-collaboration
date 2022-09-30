@@ -275,19 +275,3 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
         if self._cfgs['tiled']:
             plt.savefig('{}-tiled-inclusion-net-{}.png'.format(self._cfgs['collection'],self.engine), dpi=300)
-
-
-if __name__ == '__main__':
-   
-    parser = argparse.ArgumentParser(description='draw an inclusion network evolution over time')
-    parser.add_argument('cfgyaml', help='path to a YAML config file')
-    args = parser.parse_args()
-    
-    network = InclusionNetwork()
-    network.load_cfgs(args.cfgyaml)
-    network.load_nodes()
-    network.load_edges()
-    network.create_graph()
-    network.layout_graph()
-    network.set_aesthetics()
-    network.draw()
