@@ -79,7 +79,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         '''Set some per-node aesthetics. Note that networkX drawing funcs 
         only accept per-node values for some node attributes, but not all.
         '''
-
         # add fill colors
         try:
             conditions = [
