@@ -22,7 +22,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         self.nodes = None
         self.edges = None
         self.Graph = None
-        self.highlight_new = False
+        self.highlight_new = True
         self.fixed_coords = False
 
         # Here's a thought question, what units are these in? Not pixels...
@@ -35,7 +35,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         self.new_highlight = '#ff3333'
         
         self.review_shape = 's'
-        self.review_label = 'SR'
+        self.review_label = 'SRR'
         self.review_color = '#8fb1daff'
         #self.review_edgecolor = '
 
@@ -136,9 +136,11 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             edges = self.edges[(self.edges['source'].isin(nodes[self._cfgs['id']])) & (self.edges['target'].isin(nodes[self._cfgs['id']]))]
           
             self.periods.append({'searchyear': y, 
-                'nodes': nodes[self._cfgs['id']].tolist(), 
+                'nodes': nodes[self._cfgs['id']].tolist(),
+                'edges': list(zip(edges['source'].tolist(), edges['target'].tolist())), # list of tuples...
                 'sources': edges['source'].tolist(),
                 'targets': edges['target'].tolist()})
+            #print('MVM: {}'.format(self.periods))
 
     def draw(self):
         '''Draws the inclusion network evolution by review "period." Reviews and studies
@@ -201,6 +203,24 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             new = tmp[tmp['_merge'] == 'left_only']
             return old, new
 
+        def _split_old_new_nodes(i, period):
+            # distiinguish new nodes from old by doing a difference with
+            # the previous period.
+            current = period['nodes']
+            prev = self.periods[i-1]['nodes']
+            
+            new = list(set(current) - set(prev))
+            return prev, new
+
+        def _split_old_new_edges(i, period):
+            # distinguish new edges from old by doing a difference with the
+            # previous period.
+            current = period['edges']
+            prev = self.periods[i-1]['edges']
+            
+            new = list(set(current) - set(prev))
+            return prev, new
+
         # matplotlib setup for tiled subplots
         if self._cfgs['tiled']:
             fig, axs = plt.subplots(ceil(len(self.periods)/2), 2)
@@ -228,6 +248,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             periodnodesdf = self.nodes[self.nodes[self._cfgs['id']].isin(period['nodes'])]
             periodedgesdf = self.edges[(self.edges['source'].isin(period['sources']) & self.edges['target'].isin(period['targets']))]
 
+
             nodepos = dict(periodnodesdf[[self._cfgs['id'], 'coords']].values)
 
             # for printing in title
@@ -247,35 +268,45 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 # review period.
 
                 # split nodes on old vs new 
-                old_nodes, new_nodes = _split_old_new(i, period)
+                #old_nodes, new_nodes = _split_old_new(i, period)
+                old_nodes, new_nodes = _split_old_new_nodes(i, period)
+                oldperiodnodesdf = self.nodes[self.nodes[self._cfgs['id']].isin(old_nodes)]
+                newperiodnodesdf = self.nodes[self.nodes[self._cfgs['id']].isin(new_nodes)]
+
                 # reviews after studies and new after old so they're on top
-                _draw_sub_nodes(old_nodes, self._cfgs['study'], self.study_shape, self.study_color)
-                _draw_sub_nodes(new_nodes, self._cfgs['study'], self.study_shape, self.new_highlight)
-                #PSRs = period['nodes'].loc[period['nodes'][self._cfgs['kind']] == self._cfgs['study']]
+                _draw_sub_nodes(oldperiodnodesdf, self._cfgs['study'], self.study_shape, self.study_color)
+                _draw_sub_nodes(newperiodnodesdf, self._cfgs['study'], self.study_shape, self.new_highlight)
+
+                PSRs = periodnodesdf.loc[periodnodesdf[self._cfgs['kind']] == self._cfgs['study']]
                 PSRpos = dict(PSRs[[self._cfgs['id'],'coords']].values)
+
                 nx.draw_networkx_labels(self.Graph, PSRpos,
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
                         font_size=4, font_color='#1a1a1aaa')
-                _draw_sub_nodes(old_nodes, self._cfgs['review'], self.review_shape, self.review_color)
-                _draw_sub_nodes(new_nodes, self._cfgs['review'], self.review_shape, self.new_highlight)
+
+                _draw_sub_nodes(oldperiodnodesdf, self._cfgs['review'], self.review_shape, self.review_color)
+                _draw_sub_nodes(newperiodnodesdf, self._cfgs['review'], self.review_shape, self.new_highlight)
 
                 # split edges on old vs new
-                old_edges, new_edges = _split_old_new(i, period, 'edges')
-
+                old_edges, new_edges = _split_old_new_edges(i, period)
+                #print(f'MVM {old_edges}')
                 # MVM: wrap these calls?
-                nx.draw_networkx_edges(self.Graph, nodepos, edgelist=old_edges['tuples'].to_list(), 
+                nx.draw_networkx_edges(self.Graph, nodepos, edgelist=old_edges, 
                         edge_color=self.edge_color, width=self.edge_width, node_size=self.node_size, arrowsize=5)
                 
-                nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges['tuples'].to_list(), 
+                nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges, 
                         edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=5)
             else:
                 # don't split on old v. new
                 _draw_sub_nodes(periodnodesdf, self._cfgs['study'], self.study_shape)
+
                 PSRs = periodnodesdf.loc[periodnodesdf[self._cfgs['kind']] == self._cfgs['study']]
                 PSRpos = dict(PSRs[[self._cfgs['id'],'coords']].values)
+
                 nx.draw_networkx_labels(self.Graph, PSRpos,
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
                         font_size=4, font_color='#1a1a1aaa')
+
                 _draw_sub_nodes(periodnodesdf, self._cfgs['review'], self.review_shape)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, periodedgesdf['tuples'].to_list(), 
@@ -285,6 +316,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             # so no separation is necessary
             SRs = periodnodesdf.loc[periodnodesdf[self._cfgs['kind']] == self._cfgs['review']]
             SRpos = dict(SRs[[self._cfgs['id'],'coords']].values)
+
             nx.draw_networkx_labels(self.Graph, SRpos,
                     labels = dict(SRs[[self._cfgs['id'],'labels']].values),
                     font_size=6, font_color='#1a1a1a')
