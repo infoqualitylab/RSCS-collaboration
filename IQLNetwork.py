@@ -90,7 +90,7 @@ class IQLNetwork:
         self.edges = self.edges[self.edges['target'].notnull()]
         self.edges = self.edges[self.edges['source'].notnull()]
 
-    def create_graph(self):
+    def create_graph(self, period=None):
         '''Creates a networkX directed graph for input to layout and 
         drawing algorithms.
         '''
@@ -100,17 +100,14 @@ class IQLNetwork:
         else:
             self.Graph = nx.Graph()
 
-        self.Graph.add_nodes_from(self.nodes[self._cfgs['id']].tolist())
-
-        # MVM - why am I doing this in a loop instead of
-        # through the nx api?
-        for idx, row in self.nodes.iterrows():
-            self.Graph.add_node(row[self._cfgs['id']], **row)
-
-        sources = self.edges['source'].tolist()
-        targets = self.edges['target'].tolist()
-
-        self.Graph.add_edges_from(zip(sources, targets))
+        if period is None:
+            self.Graph.add_nodes_from(self.nodes[self._cfgs['id']].tolist())
+            sources = self.edges['source'].tolist()
+            targets = self.edges['target'].tolist()
+            self.Graph.add_edges_from(zip(sources, targets))
+        else:
+           self.Graph.add_nodes_from(period['nodes'])
+           self.Graph.add_edges_from(zip(period['sources'],period['targets']))
 
     def layout_graph(self):
         '''Lays out the inclusion network using a pygraphviz algorithm. NetworkX
