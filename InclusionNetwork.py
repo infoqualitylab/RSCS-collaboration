@@ -23,7 +23,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         self.edges = None
         self.Graph = None
         self.highlight_new = False
-        self.fixed_coords = True
+        self.fixed_coords = False
 
         # Here's a thought question, what units are these in? Not pixels...
         self.node_size = 25
@@ -99,6 +99,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         self.nodes['labels'] = np.where(self.nodes[self._cfgs['kind']] == self._cfgs['review'], 
                 self.review_label + self.nodes.labels, self.nodes.labels)
 
+    def node_size_by_degree(self):
         # get node degrees for sizing. nx.degree() returns a DiDegreeView, which is
         # a wrapper around a dictionary. 
         degsView = nx.degree(self.Graph)
@@ -133,7 +134,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
             nodes = pd.concat([searchPeriodSRs,searchPeriodPSRs])
             edges = self.edges[(self.edges['source'].isin(nodes[self._cfgs['id']])) & (self.edges['target'].isin(nodes[self._cfgs['id']]))]
-            
+          
             self.periods.append({'searchyear': y, 
                 'nodes': nodes[self._cfgs['id']].tolist(), 
                 'sources': edges['source'].tolist(),
@@ -158,15 +159,18 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         Shape however requires splitting because networkX (and matplotlib)
         will only accept a single shape per draw function.
         '''
-        # creates the periods list
+
+        # this is the critical step to making lists of which nodes/edges are draw when
         self._gather_periods()
 
+        # if fixed coords, we create and layout the graph based on the entire, final network
+        coordstr = 'free'
         if self.fixed_coords:
-            self._draw_fixed()
-        else:
-            self._draw_free()
-      
-    def _draw_fixed(self):
+            self.create_graph()
+            self.layout_graph()
+            coordstr = 'fixed'
+     
+
         # MVM: inner func or method?
         # drawing with nx.draw_networkx_{nodes|edges}
         # this way requires that the subsets be dictionaries where the
@@ -205,6 +209,14 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             fig, axs = plt.subplots()
 
         for i, period in enumerate(self.periods):
+            # for free-floating drawing, have to create and layout the graph for
+            # each period. The issue is, these are methods, and these aren't subclasses,
+            # though I suppose that would be the more OOP to do it. 
+            if not self.fixed_coords:
+                self.create_graph(period)
+                self.layout_graph()
+    
+
             fig, axs = plt.subplots()
             # this tiles left-to-right, top-to-bottom
             
@@ -213,12 +225,9 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
             # nodepos contains all the node coords, regardless of kind, and is
             # used to draw edges and node-labels.
-            #nodepos = dict(period['nodes'][[self._cfgs['id'], 'coords']].values)
-            #nodespos = dict(self.nodes[[self.nodes[self._cfgs['id']].isin(period['nodes']), 'coords']].values)
             periodnodesdf = self.nodes[self.nodes[self._cfgs['id']].isin(period['nodes'])]
-            #edges = self.edges[(self.edges['source'].isin(nodes[self._cfgs['id']])) & (self.edges['target'].isin(nodes[self._cfgs['id']]))]
-            periodedgesdf = self.edges[(self.edges['source'].isin(period['sources'])) & (self.edges['target'].isin(period['targets']))]
-            #import pdb; pdb.set_trace()
+            periodedgesdf = self.edges[(self.edges['source'].isin(period['sources']) & self.edges['target'].isin(period['targets']))]
+
             nodepos = dict(periodnodesdf[[self._cfgs['id'], 'coords']].values)
 
             # for printing in title
@@ -287,9 +296,13 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 axs[-1, -1].axis('off')
             plt.tight_layout()
             if not self._cfgs['tiled']:
-                plt.savefig('{}-inclusion-net-{}-{}.png'.format(self._cfgs['collection'],self.engine, i), dpi=300)
+                plt.savefig('{}-{}-inclusion-net-{}-{}.png'.format(self._cfgs['collection'],coordstr,self.engine, i), dpi=300)
 
             plt.clf()
+            if not self.fixed_coords:
+                self.Graph.clear()
+                self.nodes = self.nodes.drop(columns=['coords', 'x', 'y'])
+                self.edges = self.edges.drop(columns=['x_source', 'x_target', 'y_source', 'y_target', 'tuples'])
 
         if self._cfgs['tiled']:
-            plt.savefig('{}-tiled-inclusion-net-{}.png'.format(self._cfgs['collection'],self.engine), dpi=300)
+            plt.savefig('{}-{}-tiled-inclusion-net-{}.png'.format(self._cfgs['collection'],coordstr,self.engine), dpi=300)
