@@ -126,22 +126,21 @@ class IQLNetwork:
         nodecoords.reset_index(inplace=True)
 
         # as separate x, y cols
-        self.nodes = pd.merge(self.nodes, nodecoords)
+        self.nodes = self.nodes.merge(nodecoords, how='left')
 
         # a col of (x, y) pairs
         self.nodes['coords'] = list(zip(self.nodes.x, self.nodes.y))
 
-        self.edges = pd.merge(self.edges, nodecoords, 
+        self.edges = self.edges.merge(nodecoords, how='left', 
                 left_on='source', right_on=self._cfgs['id'])
         self.edges = self.edges.drop([self._cfgs['id']],axis=1)
-        self.edges = pd.merge(self.edges, nodecoords,
+        self.edges = self.edges.merge(nodecoords, how='left',
                 left_on='target', right_on=self._cfgs['id'],
                 suffixes=tuple(['_source', '_target']))
         self.edges = self.edges.drop([self._cfgs['id']], axis=1)
 
         # tuples for edgelist
         self.edges['tuples'] = tuple(zip(self.edges.source, self.edges.target))
-
 
     def load_layout_json(self):
         '''Loads a layout exported from Gephi as JSON.'''
