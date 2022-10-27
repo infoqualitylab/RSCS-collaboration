@@ -263,7 +263,34 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 axs.set_title('({}) search year: {}'.format(ascii_lowercase[i],
                     period['searchyear'])) 
 
-            if i > 0 and self.highlight_new:
+            if i == 0 and self.highlight_new:
+                # this is a new request, they want the highlighting also in the first period.
+                # it would make sense to have the highlighting on the SRRs and connected PSRs
+                # so need to find all the PSRs that are connected... these are 
+                # periodedgesdf['target']
+
+                targets = periodnodesdf[periodnodesdf[self._cfgs['id']].isin(periodedgesdf['target'])]
+                nontargets = periodnodesdf[~periodnodesdf[self._cfgs['id']].isin(periodedgesdf['target'])]
+
+                _draw_sub_nodes(targets, self._cfgs['study'], self.study_shape, self.new_highlight)
+                _draw_sub_nodes(nontargets, self._cfgs['study'], self.study_shape)
+
+                #_draw_sub_nodes(periodnodesdf, self._cfgs['study'], self.study_shape)
+
+                PSRs = periodnodesdf.loc[periodnodesdf[self._cfgs['kind']] == self._cfgs['study']]
+                PSRpos = dict(PSRs[[self._cfgs['id'],'coords']].values)
+
+                nx.draw_networkx_labels(self.Graph, PSRpos,
+                        labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
+                        font_size=4, font_color='#1a1a1aaa')
+
+                _draw_sub_nodes(periodnodesdf, self._cfgs['review'], self.review_shape, self.new_highlight)
+
+                nx.draw_networkx_edges(self.Graph, nodepos, periodedgesdf['tuples'].to_list(), 
+                        edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=5)
+
+
+            elif i > 0 and self.highlight_new:
                 # this if case is to only draw the red outlines after the first 
                 # review period.
 
