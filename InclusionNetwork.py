@@ -26,7 +26,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         self.fixed_coords = False
 
         # Here's a thought question, what units are these in? Not pixels...
-        self.node_size = 25
+        self.node_size = 50
         self.edge_width = 0.5
         self.arrow_size = 5
         self.inconclusive_color = '#8da0cb'
@@ -36,12 +36,14 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         
         self.review_shape = 's'
         self.review_label = 'SRR'
+        self.review_label_size = 6 
         self.review_color = '#8fb1daff'
         #self.review_edgecolor = '
 
         self.study_shape = 'o'
         self.study_color = 'lightgrey'
         self.study_edgecolor = '#b889c933'
+        self.study_label_size = 6
 
         self.edge_color = 'lightgray'
 
@@ -123,8 +125,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         # loop over unique search years grabbing just nodes <= y
         # this is a list of search years as ints
         searchPeriods = self.nodes[self.nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['searchyear']].unique().astype(int)
-
-        # redo this so self.periods is a list of 'id' and not full data frames
         
         for y in sorted(searchPeriods):
             
@@ -226,7 +226,14 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             fig, axs = plt.subplots(ceil(len(self.periods)/2), 2)
             fig.set_size_inches(16, 23, forward=True)
         else:
+            #plt.figure(figsize=(3.1,2.33)) doesn't work!
             fig, axs = plt.subplots()
+            #plt.gcf().set_size_inches(3.1, 2.33) doesn't work!
+            #fig.set_size_inches(3.1, 2.33, forward=True) doesn't work!
+            #figure(figsize=(3.1, 2.33), dpi=300) doesn't work!
+            plt.rcParams['figure.figsize'] = (3.1, 2.33) # this does work
+
+            
 
         for i, period in enumerate(self.periods):
             # for free-floating drawing, have to create and layout the graph for
@@ -282,7 +289,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
                 nx.draw_networkx_labels(self.Graph, PSRpos,
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
-                        font_size=4, font_color='#1a1a1aaa')
+                        font_size=self.study_label_size, font_color='#1a1a1aaa')
 
                 _draw_sub_nodes(periodnodesdf, self._cfgs['review'], self.review_shape, self.new_highlight)
 
@@ -309,7 +316,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
                 nx.draw_networkx_labels(self.Graph, PSRpos,
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
-                        font_size=4, font_color='#1a1a1aaa')
+                        font_size=self.study_label_size, font_color='#1a1a1aaa')
 
                 _draw_sub_nodes(oldperiodnodesdf, self._cfgs['review'], self.review_shape, self.review_color)
                 _draw_sub_nodes(newperiodnodesdf, self._cfgs['review'], self.review_shape, self.new_highlight)
@@ -332,7 +339,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
                 nx.draw_networkx_labels(self.Graph, PSRpos,
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
-                        font_size=4, font_color='#1a1a1aaa')
+                        font_size=self.study_label_size, font_color='#1a1a1aaa')
 
                 _draw_sub_nodes(periodnodesdf, self._cfgs['review'], self.review_shape)
 
@@ -346,7 +353,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
             nx.draw_networkx_labels(self.Graph, SRpos,
                     labels = dict(SRs[[self._cfgs['id'],'labels']].values),
-                    font_size=6, font_color='#1a1a1a')
+                    font_size=self.review_label_size, font_color='#1a1a1a')
 
             plt.axis('off')
 
@@ -355,7 +362,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 axs[-1, -1].axis('off')
             plt.tight_layout()
             if not self._cfgs['tiled']:
-                plt.savefig('{}-{}-inclusion-net-{}-{}.png'.format(self._cfgs['collection'],coordstr,self.engine, i), dpi=300)
+                #plt.savefig('{}-{}-inclusion-net-{}-{}.png'.format(self._cfgs['collection'],coordstr,self.engine, i), dpi=300)
+                plt.savefig('{}-{}-inclusion-net-{}-{}.tif'.format(self._cfgs['collection'],coordstr,self.engine, i), format='tiff', dpi=300)
 
             plt.clf()
             if not self.fixed_coords:
