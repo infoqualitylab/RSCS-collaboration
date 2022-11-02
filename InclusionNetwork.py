@@ -125,8 +125,9 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         # loop over unique search years grabbing just nodes <= y
         # this is a list of search years as ints
         searchPeriods = self.nodes[self.nodes[self._cfgs['kind']] == self._cfgs['review']][self._cfgs['searchyear']].unique().astype(int)
-        
-        for y in sorted(searchPeriods):
+        searchPeriods = sorted(searchPeriods)
+
+        for y in searchPeriods:
             
             # SRs grab by search year, PSRs by publication year 
             searchPeriodSRs = self.nodes[(self.nodes[self._cfgs['kind']] == self._cfgs['review']) & (self.nodes[self._cfgs['searchyear']] <= y)]
@@ -140,7 +141,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 'edges': list(zip(edges['source'].tolist(), edges['target'].tolist())), # list of tuples...
                 'sources': edges['source'].tolist(),
                 'targets': edges['target'].tolist()})
-            #print('MVM: {}'.format(self.periods))
 
     def draw(self):
         '''Draws the inclusion network evolution by review "period." Reviews and studies
@@ -226,14 +226,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             fig, axs = plt.subplots(ceil(len(self.periods)/2), 2)
             fig.set_size_inches(16, 23, forward=True)
         else:
-            #plt.figure(figsize=(3.1,2.33)) doesn't work!
             fig, axs = plt.subplots()
-            #plt.gcf().set_size_inches(3.1, 2.33) doesn't work!
-            #fig.set_size_inches(3.1, 2.33, forward=True) doesn't work!
-            #figure(figsize=(3.1, 2.33), dpi=300) doesn't work!
-            plt.rcParams['figure.figsize'] = (3.1, 2.33) # this does work
-
-            
 
         for i, period in enumerate(self.periods):
             # for free-floating drawing, have to create and layout the graph for
@@ -362,8 +355,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 axs[-1, -1].axis('off')
             plt.tight_layout()
             if not self._cfgs['tiled']:
-                #plt.savefig('{}-{}-inclusion-net-{}-{}.png'.format(self._cfgs['collection'],coordstr,self.engine, i), dpi=300)
-                plt.savefig('{}-{}-inclusion-net-{}-{}.tif'.format(self._cfgs['collection'],coordstr,self.engine, i), format='tiff', dpi=300)
+                plt.savefig('{}-{}-inclusion-net-{}-{}.png'.format(self._cfgs['collection'],coordstr,self.engine, i), dpi=300)
+                #plt.savefig('{}-{}-inclusion-net-{}-{}.tif'.format(self._cfgs['collection'],coordstr,self.engine, i), format='tiff', dpi=300)
 
             plt.clf()
             if not self.fixed_coords:
