@@ -142,6 +142,20 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 'sources': edges['source'].tolist(),
                 'targets': edges['target'].tolist()})
 
+        # handling any PSRs that happen AFTER the last SRR search year
+        # what to put for searchyear is a question... going with max PSR publication year
+        #import pdb; pdb.set_trace()
+        maxPSRyear = max(self.nodes[self.nodes[self._cfgs['kind']] == self._cfgs['study']][self._cfgs['year']])
+
+        if maxPSRyear > searchPeriods[-1]:
+            self.periods.append({'searchyear': maxPSRyear,
+                'nodes': self.nodes[self._cfgs['id']].tolist(),
+                'edges': list(zip(self.edges['source'].tolist(), self.edges['target'].tolist())),
+                'sources': self.edges['source'].tolist(),
+                'targets': self.edges['target'].tolist()
+                })
+        
+
     def draw(self):
         '''Draws the inclusion network evolution by review "period." Reviews and studies
         new to the respective periods are highlighted in red. From the 
@@ -256,11 +270,18 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             # this requires consideration!
 
             # set the axes title
+            # hack - for Salt but not ExRx, last image/tile needs to have
+            # just "year" instead of "search year"
+            if self._cfgs['collection'] == 'salt' and i == len(self.periods) - 1:
+                yearlabel = 'year'
+            else:
+                yearlabel = 'search year'
+
             if self._cfgs['tiled']:
-                axs[i//2, i%2].set_title('({}) search year: {}'.format(ascii_lowercase[i],
+                axs[i//2, i%2].set_title('({}) {}: {}'.format(ascii_lowercase[i], yearlabel,
                     period['searchyear'])) 
             else:
-                axs.set_title('({}) search year: {}'.format(ascii_lowercase[i],
+                axs.set_title('({}) {}: {}'.format(ascii_lowercase[i], yearlabel,
                     period['searchyear'])) 
 
             if i == 0 and self.highlight_new:
