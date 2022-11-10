@@ -1,6 +1,7 @@
 # Mark Van Moer, NCSA/RSCS/UIUC
 
-# Draw a graph network using networkX and matplotlib
+# This is a base class for drawing inclusion networks or
+# coauthor networks.
 
 import pandas as pd
 import numpy as np
