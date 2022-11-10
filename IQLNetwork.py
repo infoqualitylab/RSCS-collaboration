@@ -188,19 +188,3 @@ class IQLNetwork:
 
     def write_dot(self):
         write_dot(self.Graph, './{}-network.dot'.format(self._cfgs['collection']))
-
-        
-
-if __name__ == '__main__':
-    
-    parser = argparse.ArgumentParser(description='draw a static network')
-    parser.add_argument('cfgyaml', help='path to a YAML config file')
-    args = parser.parse_args()
-
-    network = Network()
-    network.load_cfgs(args.cfgyaml)
-    network.load_nodes()
-    network.load_edges()
-    network.create_graph()
-    network.layout_graph()
-    network.write_dot()
