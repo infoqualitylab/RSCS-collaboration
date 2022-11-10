@@ -203,37 +203,13 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 node_shape=shape, edgecolors=edge)
 
         def _split_old_new(i, period, component='nodes'):
-            # distinguish new nodes from old nodes by doing an anti-join
-            # on the current period vs the previous period. pandas doesn't
-            # have a true anti-join function, so do an outer join which
-            # retains all values and all rows, but also tag with the
-            # indicator parameter so we can compare left-only (new) to
-            # both (pre-existing).
-            current_nodes= period[component]
-            previous_nodes= self.periods[i-1][component]
+            # distinguish new nodes from old nodes by doing a set difference
+            # with the previous period.
+            current = period[component]
+            previous = self.periods[i-1][component]
 
-            tmp = current_nodes.merge(previous_nodes, how='outer', indicator=True)
-            old = tmp[tmp['_merge'] == 'both']
-            new = tmp[tmp['_merge'] == 'left_only']
-            return old, new
-
-        def _split_old_new_nodes(i, period):
-            # distiinguish new nodes from old by doing a difference with
-            # the previous period.
-            current = period['nodes']
-            prev = self.periods[i-1]['nodes']
-            
-            new = list(set(current) - set(prev))
-            return prev, new
-
-        def _split_old_new_edges(i, period):
-            # distinguish new edges from old by doing a difference with the
-            # previous period.
-            current = period['edges']
-            prev = self.periods[i-1]['edges']
-            
-            new = list(set(current) - set(prev))
-            return prev, new
+            new = list(set(current) - set(previous))
+            return previous, new
 
         # matplotlib setup for tiled subplots
         if self._cfgs['tiled']:
@@ -316,8 +292,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 # review period.
 
                 # split nodes on old vs new 
-                #old_nodes, new_nodes = _split_old_new(i, period)
-                old_nodes, new_nodes = _split_old_new_nodes(i, period)
+                old_nodes, new_nodes = _split_old_new(i, period, 'nodes')
                 oldperiodnodesdf = self.nodes[self.nodes[self._cfgs['id']].isin(old_nodes)]
                 newperiodnodesdf = self.nodes[self.nodes[self._cfgs['id']].isin(new_nodes)]
 
@@ -336,7 +311,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 _draw_sub_nodes(newperiodnodesdf, self._cfgs['review'], self.review_shape, self.new_highlight)
 
                 # split edges on old vs new
-                old_edges, new_edges = _split_old_new_edges(i, period)
+                old_edges, new_edges = _split_old_new(i, period, 'edges')
                 #print(f'MVM {old_edges}')
                 # MVM: wrap these calls?
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=old_edges, 
