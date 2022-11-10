@@ -128,7 +128,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
             nodes = pd.concat([searchPeriodSRs,searchPeriodPSRs])
             edges = self.edges[(self.edges['source'].isin(nodes[self._cfgs['id']])) & (self.edges['target'].isin(nodes[self._cfgs['id']]))]
-          
+         
+            # sources and targets keys are used when drawing period-specific edges
             self.periods.append({'searchyear': y, 
                 'nodes': nodes[self._cfgs['id']].tolist(),
                 'edges': list(zip(edges['source'].tolist(), edges['target'].tolist())), # list of tuples...
@@ -317,9 +318,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
             plt.clf()
             if not self.fixed_coords:
+                # need to clean things up when doing free coords to avoid name-clash errors
                 self.Graph.clear()
-                self.nodes = self.nodes.drop(columns=['coords', 'x', 'y'])
-                self.edges = self.edges.drop(columns=['x_source', 'x_target', 'y_source', 'y_target', 'tuples'])
 
         if self._cfgs['tiled']:
             plt.savefig('{}-{}-tiled-inclusion-net-{}.png'.format(self._cfgs['collection'],coordstr,self.engine), dpi=300)
