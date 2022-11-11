@@ -318,9 +318,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 plt.savefig('{}-{}-inclusion-net-{}-{}.png'.format(self._cfgs['collection'],coordstr,self.engine, i), dpi=300)
 
             plt.clf()
-            if not self.fixed_coords:
-                # need to clean things up when doing free coords to avoid name-clash errors
-                self.Graph.clear()
 
         if self._cfgs['tiled']:
             plt.savefig('{}-{}-tiled-inclusion-net-{}.png'.format(self._cfgs['collection'],coordstr,self.engine), dpi=300)
