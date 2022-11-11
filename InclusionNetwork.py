@@ -185,11 +185,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             self.layout_graph()
             coordstr = 'fixed'
 
-        # MVM: inner func or method?
-        # drawing with nx.draw_networkx_{nodes|edges}
-        # this way requires that the subsets be dictionaries where the
-        # keys are the 'ID' and the values are the coordinate pairs 
-
         # matplotlib setup for tiled subplots
         if self._cfgs['tiled']:
             fig, axs = plt.subplots(ceil(len(self.periods)/2), 2)
