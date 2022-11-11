@@ -1,6 +1,7 @@
 # Mark Van Moer, NCSA/RSCS/UIUC
 
-# Draw a graph network using networkX and matplotlib
+# This is a base class for drawing inclusion networks or
+# coauthor networks.
 
 import pandas as pd
 import numpy as np
@@ -115,11 +116,16 @@ class IQLNetwork:
         neato, dot, twopi, circo, fdp, sfdp
         '''
         print('laying out graph')
+        
+        # check if coords (and x, y) columns already exist, and drop if so
+        # this avoids name clash errors when recreating layout in free coords
+        if 'coords' in self.nodes.columns:
+            self.nodes = self.nodes.drop(columns=['coords', 'x', 'y'])
+
         # layout graph and grab coordinates
         fullgraphpos = nx.nx_agraph.graphviz_layout(self.Graph, prog=self.engine)
 
         # merge the coordinates into the node and edge data frames
-        # TODO - remove whatever columns ended up being unused
         nodecoords = pd.DataFrame.from_dict(fullgraphpos, orient='index', 
             columns=['x', 'y'])
         nodecoords.index.name = self._cfgs['id']
@@ -141,6 +147,8 @@ class IQLNetwork:
 
         # tuples for edgelist
         self.edges['tuples'] = tuple(zip(self.edges.source, self.edges.target))
+        # clean up 
+        self.edges = self.edges.drop(columns=['x_source', 'x_target', 'y_source', 'y_target'])
 
     def load_layout_json(self):
         '''Loads a layout exported from Gephi as JSON.'''
@@ -181,19 +189,3 @@ class IQLNetwork:
 
     def write_dot(self):
         write_dot(self.Graph, './{}-network.dot'.format(self._cfgs['collection']))
-
-        
-
-if __name__ == '__main__':
-    
-    parser = argparse.ArgumentParser(description='draw a static network')
-    parser.add_argument('cfgyaml', help='path to a YAML config file')
-    args = parser.parse_args()
-
-    network = Network()
-    network.load_cfgs(args.cfgyaml)
-    network.load_nodes()
-    network.load_edges()
-    network.create_graph()
-    network.layout_graph()
-    network.write_dot()
