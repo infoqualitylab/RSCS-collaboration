@@ -123,7 +123,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         searchPeriods = sorted(searchPeriods)
 
         for y in searchPeriods:
-            # SRs grab by search year, PSRs by publication year 
+            # grab SRs by search year, PSRs by publication year 
             searchPeriodSRs = self.nodes[(self.nodes[self._cfgs['kind']] == self._cfgs['review']) & (self.nodes[self._cfgs['searchyear']] <= y)]
             searchPeriodPSRs = self.nodes[(self.nodes[self._cfgs['kind']] == self._cfgs['study']) & (self.nodes[self._cfgs['year']] <= y)]
 
@@ -305,9 +305,11 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             plt.axis('off')
 
             # if odd number of subplots, don't draw axes around an empty last plot
+            # in tiled layout.
             if self._cfgs['tiled'] and len(self.periods) % 2 == 1:
                 axs[-1, -1].axis('off')
             plt.tight_layout()
+
             if not self._cfgs['tiled']:
                 plt.savefig('{}-{}-inclusion-net-{}-{}.png'.format(self._cfgs['collection'],coordstr,self.engine, i), dpi=300)
 
