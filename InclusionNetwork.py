@@ -295,8 +295,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 nx.draw_networkx_edges(self.Graph, nodepos, periodedgesdf['tuples'].to_list(), 
                         edge_color=self.edge_color, width=self.edge_width, node_size=self.node_size, arrowsize=5)
         
-            # labels are all drawn with the same style regardles of node kind 
-            # so no separation is necessary
             SRs = periodnodesdf.loc[periodnodesdf[self._cfgs['kind']] == self._cfgs['review']]
             SRpos = dict(SRs[[self._cfgs['id'],'coords']].values)
 
