@@ -58,6 +58,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         # files and we can still use the original one.
         IQLNetwork.IQLNetwork.load_nodes(self)
 
+        # The additional work for this wrapper is to read the review article details
+        # CSV in order to get the search year field.
         print('attempting to load review article details from: {}'.format(self._cfgs['reviewdetailscsvpath']))
         for e in self._encodings:
             print(f'trying {e} encoding')
