@@ -36,12 +36,14 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         self.review_shape = 's'
         self.review_label = 'SRR'
         self.review_label_size = 6 
+        self.review_label_color = '#1a1a1a'
         self.review_color = '#8fb1daff'
 
         self.study_shape = 'o'
         self.study_color = 'lightgrey'
         self.study_edgecolor = '#b889c933'
         self.study_label_size = 6
+        self.study_label_color = '#1a1a1aaa'
 
         self.edge_color = 'lightgray'
 
@@ -245,7 +247,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
                 nx.draw_networkx_labels(self.Graph, PSRpos,
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
-                        font_size=self.study_label_size, font_color='#1a1a1aaa')
+                        font_size=self.study_label_size, font_color=self.study_label_color)
 
                 _draw_sub_nodes(periodnodesdf, self._cfgs['review'], self.review_shape, self.new_highlight)
 
@@ -271,7 +273,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
                 nx.draw_networkx_labels(self.Graph, PSRpos,
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
-                        font_size=self.study_label_size, font_color='#1a1a1aaa')
+                        font_size=self.study_label_size, font_color=self.study_label_color)
 
                 _draw_sub_nodes(oldperiodnodesdf, self._cfgs['review'], self.review_shape, self.review_color)
                 _draw_sub_nodes(newperiodnodesdf, self._cfgs['review'], self.review_shape, self.new_highlight)
@@ -293,7 +295,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
                 nx.draw_networkx_labels(self.Graph, PSRpos,
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
-                        font_size=self.study_label_size, font_color='#1a1a1aaa')
+                        font_size=self.study_label_size, font_color=self.study_label_color)
 
                 _draw_sub_nodes(periodnodesdf, self._cfgs['review'], self.review_shape)
 
@@ -307,7 +309,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
             nx.draw_networkx_labels(self.Graph, SRpos,
                     labels = dict(SRs[[self._cfgs['id'],'labels']].values),
-                    font_size=self.review_label_size, font_color='#1a1a1a')
+                    font_size=self.review_label_size, font_color=self.review_label_color)
 
             plt.axis('off')
 
