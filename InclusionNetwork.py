@@ -150,6 +150,26 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 })
         
 
+    def _draw_sub_nodes(self,nodes, kind, shape, edge=None):
+        # grab the subset of review vs study kind
+        subnodes = nodes[nodes[self._cfgs['kind']] == kind]
+        # convert to dict for networkX
+        # for sizing by degree, change node_size to subnodes['degree'].to_list()
+        subnodespos = dict(subnodes[[self._cfgs['id'], 'coords']].values)
+        
+        nx.draw_networkx_nodes(self.Graph, subnodespos, nodelist=subnodespos.keys(),
+            node_color=subnodes['fill'].to_list(), node_size=self.node_size,
+            node_shape=shape, edgecolors=edge)
+
+    def _split_old_new(self,i, period, component='nodes'):
+        # distinguish new nodes from old nodes by doing a set difference
+        # with the previous period.
+        current = period[component]
+        previous = self.periods[i-1][component]
+
+        new = list(set(current) - set(previous))
+        return previous, new
+
     def draw(self):
         '''Draws the inclusion network evolution by review "period." Reviews and studies
         new to the respective periods are highlighted in red. 
@@ -169,25 +189,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         # drawing with nx.draw_networkx_{nodes|edges}
         # this way requires that the subsets be dictionaries where the
         # keys are the 'ID' and the values are the coordinate pairs 
-        def _draw_sub_nodes(nodes, kind, shape, edge=None):
-            # grab the subset of review vs study kind
-            subnodes = nodes[nodes[self._cfgs['kind']] == kind]
-            # convert to dict for networkX
-            # for sizing by degree, change node_size to subnodes['degree'].to_list()
-            subnodespos = dict(subnodes[[self._cfgs['id'], 'coords']].values)
-            
-            nx.draw_networkx_nodes(self.Graph, subnodespos, nodelist=subnodespos.keys(),
-                node_color=subnodes['fill'].to_list(), node_size=self.node_size,
-                node_shape=shape, edgecolors=edge)
-
-        def _split_old_new(i, period, component='nodes'):
-            # distinguish new nodes from old nodes by doing a set difference
-            # with the previous period.
-            current = period[component]
-            previous = self.periods[i-1][component]
-
-            new = list(set(current) - set(previous))
-            return previous, new
 
         # matplotlib setup for tiled subplots
         if self._cfgs['tiled']:
@@ -236,8 +237,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 targets = periodnodesdf[periodnodesdf[self._cfgs['id']].isin(periodedgesdf['target'])]
                 nontargets = periodnodesdf[~periodnodesdf[self._cfgs['id']].isin(periodedgesdf['target'])]
 
-                _draw_sub_nodes(targets, self._cfgs['study'], self.study_shape, self.new_highlight)
-                _draw_sub_nodes(nontargets, self._cfgs['study'], self.study_shape)
+                self._draw_sub_nodes(targets, self._cfgs['study'], self.study_shape, self.new_highlight)
+                self._draw_sub_nodes(nontargets, self._cfgs['study'], self.study_shape)
 
                 PSRs = periodnodesdf.loc[periodnodesdf[self._cfgs['kind']] == self._cfgs['study']]
                 PSRpos = dict(PSRs[[self._cfgs['id'],'coords']].values)
@@ -246,7 +247,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
                         font_size=self.study_label_size, font_color=self.study_label_color)
 
-                _draw_sub_nodes(periodnodesdf, self._cfgs['review'], self.review_shape, self.new_highlight)
+                self._draw_sub_nodes(periodnodesdf, self._cfgs['review'], self.review_shape, self.new_highlight)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, periodedgesdf['tuples'].to_list(), 
                         edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=5)
@@ -257,13 +258,13 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 # review period.
 
                 # split nodes on old vs new 
-                old_nodes, new_nodes = _split_old_new(i, period, 'nodes')
+                old_nodes, new_nodes = self._split_old_new(i, period, 'nodes')
                 oldperiodnodesdf = self.nodes[self.nodes[self._cfgs['id']].isin(old_nodes)]
                 newperiodnodesdf = self.nodes[self.nodes[self._cfgs['id']].isin(new_nodes)]
 
                 # reviews after studies and new after old so they're on top
-                _draw_sub_nodes(oldperiodnodesdf, self._cfgs['study'], self.study_shape, self.study_color)
-                _draw_sub_nodes(newperiodnodesdf, self._cfgs['study'], self.study_shape, self.new_highlight)
+                self._draw_sub_nodes(oldperiodnodesdf, self._cfgs['study'], self.study_shape, self.study_color)
+                self._draw_sub_nodes(newperiodnodesdf, self._cfgs['study'], self.study_shape, self.new_highlight)
 
                 PSRs = periodnodesdf.loc[periodnodesdf[self._cfgs['kind']] == self._cfgs['study']]
                 PSRpos = dict(PSRs[[self._cfgs['id'],'coords']].values)
@@ -272,11 +273,11 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
                         font_size=self.study_label_size, font_color=self.study_label_color)
 
-                _draw_sub_nodes(oldperiodnodesdf, self._cfgs['review'], self.review_shape, self.review_color)
-                _draw_sub_nodes(newperiodnodesdf, self._cfgs['review'], self.review_shape, self.new_highlight)
+                self._draw_sub_nodes(oldperiodnodesdf, self._cfgs['review'], self.review_shape, self.review_color)
+                self._draw_sub_nodes(newperiodnodesdf, self._cfgs['review'], self.review_shape, self.new_highlight)
 
                 # split edges on old vs new
-                old_edges, new_edges = _split_old_new(i, period, 'edges')
+                old_edges, new_edges = self._split_old_new(i, period, 'edges')
 
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=old_edges, 
                         edge_color=self.edge_color, width=self.edge_width, node_size=self.node_size, arrowsize=5)
@@ -285,7 +286,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                         edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=5)
             else:
                 # don't split on old v. new
-                _draw_sub_nodes(periodnodesdf, self._cfgs['study'], self.study_shape)
+                self._draw_sub_nodes(periodnodesdf, self._cfgs['study'], self.study_shape)
 
                 PSRs = periodnodesdf.loc[periodnodesdf[self._cfgs['kind']] == self._cfgs['study']]
                 PSRpos = dict(PSRs[[self._cfgs['id'],'coords']].values)
@@ -294,7 +295,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                         labels = dict(PSRs[[self._cfgs['id'],'labels']].values),
                         font_size=self.study_label_size, font_color=self.study_label_color)
 
-                _draw_sub_nodes(periodnodesdf, self._cfgs['review'], self.review_shape)
+                self._draw_sub_nodes(periodnodesdf, self._cfgs['review'], self.review_shape)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, periodedgesdf['tuples'].to_list(), 
                         edge_color=self.edge_color, width=self.edge_width, node_size=self.node_size, arrowsize=5)
