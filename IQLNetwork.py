@@ -13,6 +13,25 @@ import json
 from networkx.drawing.nx_agraph import write_dot
 import sys
 
+def read_encoded_csv(csvpath):
+    # CSV's saved on Windows machines will likely use Windows-1252 code page
+    # for text encoding. CSV's saved on Linux (and possibly OS X) will 
+    # likely use utf-8. It all comes down to if a file
+    # has data outside the Latin 1 charset and in particular, what.
+    encodings = ['utf8', 'cp1252']
+
+    for e in encodings:
+        print(f'attempting {e} encoding to read {csvpath}...')
+        try:
+            df = pd.read_csv(csvpath, encoding=e)
+        except UnicodeDecodeError:
+            print(f'error using {e}, attempting another encoding...')
+        else:
+            print(f'file opened with {e} encoding')
+            break
+
+    return df
+
 class IQLNetwork:
     '''Class to wrap networkX and matplotlib calls.'''
     def __init__(self, engine='neato'):
@@ -26,7 +45,6 @@ class IQLNetwork:
         self.arrowsize = 5
         self.engine = engine
         self._cfgs = {}
-        self._encodings = ['utf8', 'cp1252']
 
     def load_cfgs(self, cfgpath):
         print(f'loading configs from {cfgpath}')
@@ -45,20 +63,9 @@ class IQLNetwork:
 
     def load_nodes(self):
         print('attempting to load nodes from {}'.format(self._cfgs['nodescsvpath']))
-        
-        # CSV's saved on Windows machines will likely use Windows-1252 code page
-        # for text encoding. CSV's saved on Linux (and possibly OS X) will 
-        # likely use utf-8. It all comes down to if a file
-        # has data outside the Latin 1 charset and in particular, what.
-        for e in self._encodings:
-            print(f'trying {e} encoding')
-            try:
-                self.nodes = pd.read_csv(self._cfgs['nodescsvpath'], encoding=e)
-            except UnicodeDecodeError:
-                print(f'error with {e}, attempting another encoding...')
-            else:
-                print(f'file opened with {e} encoding')
-                break
+       
+        self.nodes = read_encoded_csv(self._cfgs['nodescsvpath'])
+
         # clean up the column names for consistency
         self.nodes.columns = self.nodes.columns.str.strip().str.lower()
         # strip string column data
@@ -67,16 +74,8 @@ class IQLNetwork:
     def load_edges(self):
         print('attempting to load edges from {}'.format(self._cfgs['edgescsvpath']))
        
-        
-        for e in self._encodings:
-            print(f'trying {e} encoding')
-            try:
-                self.edges = pd.read_csv(self._cfgs['edgescsvpath'])
-            except UnicodeDecodeError:
-                print(f'error with {e}, attempting another encoding...')
-            else:
-                print(f'file opened with {e} encoding')
-                break 
+        self.edges = read_encoded_csv(self._cfgs['edgescsvpath']) 
+
         # MVM - this column renaming was originally because other
         # things (Gephi?) assumed 'source' 'target' names
         # MVM - change this to a check if 'source' 'target' not there

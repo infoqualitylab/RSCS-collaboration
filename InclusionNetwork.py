@@ -14,6 +14,7 @@ from string import ascii_lowercase
 import yaml
 import json
 import IQLNetwork
+from IQLNetwork import read_encoded_csv
 
 class InclusionNetwork(IQLNetwork.IQLNetwork):
     '''Class to encapsulate the inclusion network over its entire history.'''
@@ -60,15 +61,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         # The additional work for this wrapper is to read the review article details
         # CSV in order to get the search year field.
         print('attempting to load review article details from: {}'.format(self._cfgs['reviewdetailscsvpath']))
-        for e in self._encodings:
-            print(f'trying {e} encoding')
-            try:
-                reviewdetails = pd.read_csv(self._cfgs['reviewdetailscsvpath'], encoding=e)
-            except UnicodeDecodeError:
-                print(f'error with {e}, attempting another encoding...')
-            else:
-                print(f'file opened with {e} encoding')
-                break
+        reviewdetails = read_encoded_csv(self._cfgs['reviewdetailscsvpath'])
 
         reviewdetails.columns = reviewdetails.columns.str.strip().str.lower()
 
