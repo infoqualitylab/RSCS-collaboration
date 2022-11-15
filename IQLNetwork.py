@@ -51,7 +51,7 @@ class IQLNetwork:
         with open(cfgpath, 'r') as cfgfile:
             _tmp_cfgs = yaml.load(cfgfile, Loader=yaml.FullLoader)
         pathattrs = {'nodescsvpath', 'edgescsvpath', 'reviewdetailscsvpath', 'nodecoordsjson'}
-        boolattrs = {'tiled', 'loadCoords', 'directed'}
+        boolattrs = {'tiled', 'loadCoords', 'directed', 'fixed'}
         numericattrs = {'figw', 'figh'}
         for k,v in _tmp_cfgs.items():
             if k in numericattrs:

@@ -21,7 +21,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
     def __init__(self, engine='neato'):
         super().__init__()
         self.highlight_new = True
-        self.fixed_coords = False
 
         self.node_size = 50
         self.edge_width = 0.5
@@ -173,10 +172,10 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
         # if fixed coords, we create and layout the graph based on the entire, final network
         coordstr = 'free'
-        if self.fixed_coords:
+        if self._cfgs['fixed']:
+            coordstr = 'fixed'
             self.create_graph()
             self.layout_graph()
-            coordstr = 'fixed'
 
         # matplotlib setup for tiled subplots
         if self._cfgs['tiled']:
@@ -189,7 +188,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             # for free-floating drawing, have to create and layout the graph for
             # each period. The issue is, these are methods, and these aren't subclasses,
             # though I suppose that would be the more OOP to do it. 
-            if not self.fixed_coords:
+            if not self._cfgs['fixed']:
                 self.create_graph(period)
                 self.layout_graph()
 

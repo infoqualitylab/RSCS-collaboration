@@ -8,6 +8,7 @@ year: "publication_year"
 kind: "node_type"
 
 directed: True
+fixed: False
 
 # enumeration of our_item_type in article file
 review: "Systematic Review Report"
