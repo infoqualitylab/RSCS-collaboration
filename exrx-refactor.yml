@@ -1,0 +1,40 @@
+---
+# general format is -
+# attribute: value
+# strings and file paths should be quoted
+
+# used when naming the output PNGs
+collection: "ExRx"
+
+# Article Attributes ##########################################################
+# absolute path to CSV
+nodescsvpath: "/home/mvanmoer/Vis/projects/schneider-rscs/data/original/2022-09-28/exrx/article_list.csv"
+
+# Python attrs: "column name in csv"
+id: "article_id"
+year: "publication_year"
+kind: "node_type"
+review: "Systematic Review Report"
+study: "Primary Study Report"
+
+# Review Article Details ######################################################
+# absolute path to CSV
+reviewdetailscsvpath: "/home/mvanmoer/Vis/projects/schneider-rscs/data/original/2022-09-28/exrx/review_article_details.csv"
+
+searchyear: "search_year"
+
+# Inclusion Net Edges #########################################################
+# absolute path to CSV
+edgescsvpath: "/home/mvanmoer/Vis/projects/schneider-rscs/data/original/2022-09-28/exrx/inclusion_net_edges.csv"
+
+# Output Configurations #######################################################
+# whether or not to draw the graph as a directed graph
+directed: True
+
+# whether or not to use a fixed-coordinate layout for the graph
+# or free-floating.
+fixed: False
+
+# whether to draw a single tiled image or multiple images
+tiled: False
+
