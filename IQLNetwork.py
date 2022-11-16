@@ -4,14 +4,10 @@
 # coauthor networks.
 
 import pandas as pd
-import numpy as np
 import networkx as nx
-import matplotlib.pyplot as plt
-import argparse
 import yaml
 import json
 from networkx.drawing.nx_agraph import write_dot
-import sys
 
 def read_encoded_csv(csvpath):
     '''Helper function for dealing with CSVs saved on different OS's'''

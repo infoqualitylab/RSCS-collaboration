@@ -7,14 +7,8 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
-import argparse
-from math import ceil
-from string import ascii_lowercase
-import yaml
-import json
 import IQLNetwork
 from itertools import chain
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 class CoauthorNetwork(IQLNetwork.IQLNetwork):
     def __init__(self, engine='neato'):
