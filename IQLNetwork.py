@@ -14,6 +14,7 @@ from networkx.drawing.nx_agraph import write_dot
 import sys
 
 def read_encoded_csv(csvpath):
+    '''Helper function for dealing with CSVs saved on different OS's'''
     # CSV's saved on Windows machines will likely use Windows-1252 code page
     # for text encoding. CSV's saved on Linux (and possibly OS X) will 
     # likely use utf-8. It all comes down to if a file
