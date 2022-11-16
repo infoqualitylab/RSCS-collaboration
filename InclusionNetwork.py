@@ -170,7 +170,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         self._gather_periods()
 
         # if fixed coords, we create and layout the graph based on the entire, 
-        # final network
+        # final network.
         coordstr = 'free'
         if self._cfgs['fixed']:
             coordstr = 'fixed'
@@ -273,7 +273,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges, 
                         edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=5)
             else:
-                # don't split on old v. new
+                # don't split on old v. new, i.e., when NOT highlighting new items.
                 self._draw_sub_nodes(periodnodesdf, self._cfgs['study'], self.study_shape)
 
                 PSRs = periodnodesdf.loc[periodnodesdf[self._cfgs['kind']] == self._cfgs['study']]
