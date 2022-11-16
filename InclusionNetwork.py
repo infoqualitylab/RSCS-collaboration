@@ -46,28 +46,28 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
         self.engine = engine
         self._cfgs = {}
-        # periods are subsets of the data based on when new 
-        # reviews appear. It will be a list of dictionaries
-        # which contain keys for the year of the current period,
-        # the nodes, and the edges visible in that period.
+        # periods are subsets of the data based on when new reviews appear. 
+        # It will be a list of dictionaries which contain keys for the year 
+        # of the current period, the nodes, and the edges visible in that 
+        # period.
         self.periods = []
     
     def load_nodes(self):
-        # This is an wrapper rather than a pure override because node info is in two
-        # files and we can still use the original one.
+        # This is an wrapper rather than a pure override because node info is 
+        # in two files and we can still use the original one.
         IQLNetwork.IQLNetwork.load_nodes(self)
 
-        # The additional work for this wrapper is to read the review article details
-        # CSV in order to get the search year field.
+        # The additional work for this wrapper is to read the review article 
+        # details CSV in order to get the search year field.
         print('attempting to load review article details from: {}'.format(self._cfgs['reviewdetailscsvpath']))
         reviewdetails = read_encoded_csv(self._cfgs['reviewdetailscsvpath'])
 
         reviewdetails.columns = reviewdetails.columns.str.strip().str.lower()
 
         tmp = reviewdetails[[self._cfgs['id'], self._cfgs['searchyear']]]
-        # note that after the merge, review articles will have a search_year that makes sense
-        # but included items won't, consequently these will be NaN's and the column type
-        # will be float instead of int.
+        # note that after the merge, review articles will have a search_year 
+        # that makes sense but included items won't, consequently these will be
+        # NaN's and the column type will be float instead of int.
         self.nodes = self.nodes.merge(tmp, how='left')
 
     def set_aesthetics(self):
@@ -93,8 +93,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 self.review_label + self.nodes.labels, self.nodes.labels)
 
     def node_size_by_degree(self):
-        # get node degrees for sizing. nx.degree() returns a DiDegreeView, which is
-        # a wrapper around a dictionary. 
+        # get node degrees for sizing. nx.degree() returns a DiDegreeView, 
+        # which is a wrapper around a dictionary. 
         degsView = nx.degree(self.Graph)
         degsDF = pd.DataFrame.from_dict(degsView)
         degsDF.columns = [self._cfgs['id'], 'degree']
@@ -122,7 +122,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             nodes = pd.concat([searchPeriodSRs,searchPeriodPSRs])
             edges = self.edges[(self.edges['source'].isin(nodes[self._cfgs['id']])) & (self.edges['target'].isin(nodes[self._cfgs['id']]))]
          
-            # sources and targets keys are used when drawing period-specific edges
+            # sources, targets keys are used when drawing period-specific edges
             self.periods.append({'searchyear': y, 
                 'nodes': nodes[self._cfgs['id']].tolist(),
                 'edges': list(zip(edges['source'].tolist(), edges['target'].tolist())), # list of tuples...
@@ -130,7 +130,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 'targets': edges['target'].tolist()})
 
         # handling any PSRs that happen AFTER the last SRR search year
-        # what to put for searchyear is a question... going with max PSR publication year
+        # what to put for searchyear is a question... 
+        # going with max PSR publication year
         maxPSRyear = max(self.nodes[self.nodes[self._cfgs['kind']] == self._cfgs['study']][self._cfgs['year']])
 
         if maxPSRyear > searchPeriods[-1]:
@@ -163,14 +164,14 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         return previous, new
 
     def draw(self):
-        '''Draws the inclusion network evolution by review "period." Reviews and studies
-        new to the respective periods are highlighted in red. 
+        '''Draws the inclusion network evolution by review "period." Reviews and
+        studies new to the respective periods are highlighted in red. 
         '''
 
-        # this is the critical step to making lists of which nodes/edges are draw when
         self._gather_periods()
 
-        # if fixed coords, we create and layout the graph based on the entire, final network
+        # if fixed coords, we create and layout the graph based on the entire, 
+        # final network
         coordstr = 'free'
         if self._cfgs['fixed']:
             coordstr = 'fixed'
@@ -185,9 +186,10 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             fig, axs = plt.subplots()
 
         for i, period in enumerate(self.periods):
-            # for free-floating drawing, have to create and layout the graph for
-            # each period. The issue is, these are methods, and these aren't subclasses,
-            # though I suppose that would be the more OOP to do it. 
+            # for free-floating drawing, have to create and layout the graph 
+            # for each period. The issue is, these are methods, and these 
+            # aren't subclasses, though I suppose that would be the more OOP 
+            # way to do it. 
             if not self._cfgs['fixed']:
                 self.create_graph(period)
                 self.layout_graph()
@@ -296,8 +298,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
             plt.axis('off')
 
-            # if odd number of subplots, don't draw axes around an empty last plot
-            # in tiled layout.
+            # if odd number of subplots, don't draw axes around an empty last 
+            # plot in tiled layout.
             if self._cfgs['tiled'] and len(self.periods) % 2 == 1:
                 axs[-1, -1].axis('off')
             plt.tight_layout()
