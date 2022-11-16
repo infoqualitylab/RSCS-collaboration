@@ -9,11 +9,9 @@ if __name__ == '__main__':
     parser.add_argument('cfgyaml', help='path to YAML config file')
     args = parser.parse_args()
 
-    layouts = ['neato']
-    for layout in layouts:
-        network = InclusionNetwork.InclusionNetwork(engine=layout)
-        network.load_cfgs(args.cfgyaml)
-        network.load_nodes()
-        network.load_edges()
-        network.set_aesthetics()
-        network.draw()
+    network = InclusionNetwork.InclusionNetwork()
+    network.load_cfgs(args.cfgyaml)
+    network.load_nodes()
+    network.load_edges()
+    network.set_aesthetics()
+    network.draw()

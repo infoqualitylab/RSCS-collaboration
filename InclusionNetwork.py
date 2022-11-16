@@ -15,33 +15,9 @@ from IQLNetwork import read_encoded_csv
 
 class InclusionNetwork(IQLNetwork.IQLNetwork):
     '''Class to encapsulate the inclusion network over its entire history.'''
-    def __init__(self, engine='neato'):
+    def __init__(self):
         super().__init__()
-        self.highlight_new = True
 
-        self.node_size = 50
-        self.edge_width = 0.5
-        self.arrow_size = 5
-        self.inconclusive_color = '#8da0cb'
-        self.for_color = '#66c2a5'
-        self.against_color = '#fc8d62'
-        self.new_highlight = '#ff3333'
-        
-        self.review_shape = 's'
-        self.review_label = 'SRR'
-        self.review_label_size = 6 
-        self.review_label_color = '#1a1a1a'
-        self.review_color = '#8fb1daff'
-
-        self.study_shape = 'o'
-        self.study_color = 'lightgrey'
-        self.study_edgecolor = '#b889c933'
-        self.study_label_size = 6
-        self.study_label_color = '#1a1a1aaa'
-
-        self.edge_color = 'lightgray'
-
-        self.engine = engine
         # periods are subsets of the data based on when new reviews appear. 
         # It will be a list of dictionaries which contain keys for the year 
         # of the current period, the nodes, and the edges visible in that 
@@ -300,9 +276,9 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             plt.tight_layout()
 
             if not self.tiled:
-                plt.savefig('{}-{}-inclusion-net-{}-{}.png'.format(self.collection,coordstr,self.engine, i), dpi=300)
+                plt.savefig('{}-{}-inclusion-net-{}-{}.png'.format(self.collection,coordstr,self.engine, i), dpi=self.dpi)
 
             plt.clf()
 
         if self.tiled:
-            plt.savefig('{}-{}-tiled-inclusion-net-{}.png'.format(self.collection,coordstr,self.engine), dpi=300)
+            plt.savefig('{}-{}-tiled-inclusion-net-{}.png'.format(self.collection,coordstr,self.engine), dpi=self.dpi)

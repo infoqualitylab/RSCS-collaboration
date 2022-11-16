@@ -38,3 +38,34 @@ fixed: False
 # whether to draw a single tiled image or multiple images
 tiled: False
 
+# dots per inch for output images
+dpi: 300
+
+# Graph Aesthetics ############################################################
+# general
+engine: "neato"
+node_size: 50
+edge_width: 0.5
+arrow_size: 5
+inconclusive_color: "#8da0cb"
+for_color: "#66c2a5"
+against_color: "#fc8d62"
+edge_color: "lightgrey"
+
+# whether or not to highlight new items
+highlight_new: True
+new_highlight: "#ff3333"
+
+# SRR nodes
+review_label: "SRR"
+review_label_size: 6
+review_label_color: "#1a1a1a"
+review_shape: "s"
+review_color: "#8fb1daff"
+
+# PSR nodes
+study_shape: "o"
+study_color: "lightgrey"
+study_edgecolor: "#b889c933"
+study_label_size: 6
+study_label_color: "#1a1a1aaa"

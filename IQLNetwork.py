@@ -31,29 +31,21 @@ def read_encoded_csv(csvpath):
 
 class IQLNetwork:
     '''Class to wrap networkX and matplotlib calls.'''
-    def __init__(self, engine='neato'):
+    def __init__(self):
         self.nodes = None
         self.edges = None
         self.Graph = None
-        self.node_size = 50
-        self.node_color = '#5f97c2'
-        self.node_shape = 'o'
-        self.edge_width = 0.5
-        self.arrowsize = 5
-        self.engine = engine
 
     def load_cfgs(self, cfgpath):
         print(f'loading configs from {cfgpath}')
         with open(cfgpath, 'r') as cfgfile:
             yaml_cfgs = yaml.load(cfgfile, Loader=yaml.FullLoader)
-        pathattrs = {'nodescsvpath', 'edgescsvpath', 'reviewdetailscsvpath', 'nodecoordsjson'}
-        boolattrs = {'tiled', 'loadCoords', 'directed', 'fixed'}
-        numericattrs = {'figw', 'figh'}
+
+        # Strings from the CSV which get cleaned below
+        csvattrs = {'id', 'year', 'kind', 'review', 'study'}
         
         for k,v in yaml_cfgs.items():
-            if k in numericattrs:
-                setattr(self, k, float(v))
-            elif k not in pathattrs and k not in boolattrs:
+            if k in csvattrs:
                 setattr(self, k, v.strip().lower())
             else:
                 setattr(self, k, v)
