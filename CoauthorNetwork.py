@@ -194,18 +194,3 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         # also want to remove other nodes from self.Graph 
         smallercompnodes = list(chain.from_iterable(smallercomps))
         self.Graph.remove_nodes_from(smallercompnodes)
-
-if __name__=='__main__':
-    parser = argparse.ArgumentParser(description='draw a static network')
-    parser.add_argument('cfgyaml', help='path to a YAML config file')
-    args = parser.parse_args()
-
-    network = CoauthorNetwork()
-    network.load_cfgs(args.cfgyaml)
-    network.load_nodes()
-    network.load_edges()
-    network.create_graph()
-    network.layout_graph()
-    network.set_node_aesthetics()
-    network.set_edge_aesthetics()
-    network.draw()
