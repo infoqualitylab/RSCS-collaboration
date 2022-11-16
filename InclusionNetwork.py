@@ -59,7 +59,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
         # The additional work for this wrapper is to read the review article 
         # details CSV in order to get the search year field.
-        print('attempting to load review article details from: {}'.format(self._cfgs['reviewdetailscsvpath']))
         reviewdetails = read_encoded_csv(self._cfgs['reviewdetailscsvpath'])
 
         reviewdetails.columns = reviewdetails.columns.str.strip().str.lower()

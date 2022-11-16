@@ -62,8 +62,6 @@ class IQLNetwork:
                 self._cfgs[k] = v
 
     def load_nodes(self):
-        print('attempting to load nodes from {}'.format(self._cfgs['nodescsvpath']))
-       
         self.nodes = read_encoded_csv(self._cfgs['nodescsvpath'])
 
         # clean up the column names for consistency
@@ -72,8 +70,6 @@ class IQLNetwork:
         self.nodes = self.nodes.applymap(lambda x: x.strip().lower() if type(x) == str else x)
 
     def load_edges(self):
-        print('attempting to load edges from {}'.format(self._cfgs['edgescsvpath']))
-       
         self.edges = read_encoded_csv(self._cfgs['edgescsvpath']) 
 
         # MVM - this column renaming was originally because other
