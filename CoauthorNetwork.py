@@ -145,10 +145,10 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         '''Default drawing is of a single static image using self.engine for layout.'''
         print('drawing graph')
         fig, axs = plt.subplots()
-        plt.figure(figsize=(self._cfgs['figw'],self._cfgs['figh']))
+        plt.figure(figsize=(self.figw,self.figh))
         #plt.rcParams['font.size'] = 14
         # self.nodes is a pandas dataframe with x, y, and coords cols.
-        nodespos = dict(self.nodes[[self._cfgs['id'], 'coords']].values)
+        nodespos = dict(self.nodes[[self.id, 'coords']].values)
         n = None
         if useCmap == 'nodes':
             n = self._draw_cmap_nodes(nodespos)
@@ -160,7 +160,7 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
             self._draw_nodes(nodespos)
             self._draw_edges(nodespos)
 
-        plt.title('{} coauthor network'.format(self._cfgs['collection']))
+        plt.title('{} coauthor network'.format(self.collection))
         plt.axis('off')
         plt.tight_layout()
         # this works, but the bar is ugly!
@@ -179,7 +179,7 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         '''
 
         #plt.legend(['a', 'b', 'c'])
-        plt.savefig('{}-network-{}.png'.format(self._cfgs['collection'], self.engine), dpi=300)
+        plt.savefig('{}-network-{}.png'.format(self.collection, self.engine), dpi=300)
 
     def filter_connected_components(self):
         # really, just the two largest, not all.

@@ -44,25 +44,25 @@ class IQLNetwork:
         self.edge_width = 0.5
         self.arrowsize = 5
         self.engine = engine
-        self._cfgs = {}
 
     def load_cfgs(self, cfgpath):
         print(f'loading configs from {cfgpath}')
         with open(cfgpath, 'r') as cfgfile:
-            _tmp_cfgs = yaml.load(cfgfile, Loader=yaml.FullLoader)
+            yaml_cfgs = yaml.load(cfgfile, Loader=yaml.FullLoader)
         pathattrs = {'nodescsvpath', 'edgescsvpath', 'reviewdetailscsvpath', 'nodecoordsjson'}
         boolattrs = {'tiled', 'loadCoords', 'directed', 'fixed'}
         numericattrs = {'figw', 'figh'}
-        for k,v in _tmp_cfgs.items():
+        
+        for k,v in yaml_cfgs.items():
             if k in numericattrs:
-                self._cfgs[k] = float(v)
+                setattr(self, k, float(v))
             elif k not in pathattrs and k not in boolattrs:
-                self._cfgs[k] = v.strip().lower()
+                setattr(self, k, v.strip().lower())
             else:
-                self._cfgs[k] = v
+                setattr(self, k, v)
 
     def load_nodes(self):
-        self.nodes = read_encoded_csv(self._cfgs['nodescsvpath'])
+        self.nodes = read_encoded_csv(self.nodescsvpath)
 
         # clean up the column names for consistency
         self.nodes.columns = self.nodes.columns.str.strip().str.lower()
@@ -70,7 +70,7 @@ class IQLNetwork:
         self.nodes = self.nodes.applymap(lambda x: x.strip().lower() if type(x) == str else x)
 
     def load_edges(self):
-        self.edges = read_encoded_csv(self._cfgs['edgescsvpath']) 
+        self.edges = read_encoded_csv(self.edgescsvpath) 
 
         # MVM - this column renaming was originally because other
         # things (Gephi?) assumed 'source' 'target' names
@@ -97,13 +97,13 @@ class IQLNetwork:
             self.Graph.clear()
 
         print('creating graph')
-        if self._cfgs['directed']:
+        if self.directed:
             self.Graph = nx.DiGraph()
         else:
             self.Graph = nx.Graph()
 
         if period is None:
-            self.Graph.add_nodes_from(self.nodes[self._cfgs['id']].tolist())
+            self.Graph.add_nodes_from(self.nodes[self.id].tolist())
             sources = self.edges['source'].tolist()
             targets = self.edges['target'].tolist()
             self.Graph.add_edges_from(zip(sources, targets))
@@ -129,7 +129,7 @@ class IQLNetwork:
         # merge the coordinates into the node and edge data frames
         nodecoords = pd.DataFrame.from_dict(fullgraphpos, orient='index', 
             columns=['x', 'y'])
-        nodecoords.index.name = self._cfgs['id']
+        nodecoords.index.name = self.id
         nodecoords.reset_index(inplace=True)
 
         # as separate x, y cols
@@ -139,12 +139,12 @@ class IQLNetwork:
         self.nodes['coords'] = list(zip(self.nodes.x, self.nodes.y))
 
         self.edges = self.edges.merge(nodecoords, how='left', 
-                left_on='source', right_on=self._cfgs['id'])
-        self.edges = self.edges.drop([self._cfgs['id']],axis=1)
+                left_on='source', right_on=self.id)
+        self.edges = self.edges.drop([self.id],axis=1)
         self.edges = self.edges.merge(nodecoords, how='left',
-                left_on='target', right_on=self._cfgs['id'],
+                left_on='target', right_on=self.id,
                 suffixes=tuple(['_source', '_target']))
-        self.edges = self.edges.drop([self._cfgs['id']], axis=1)
+        self.edges = self.edges.drop([self.id], axis=1)
 
         # tuples for edgelist
         self.edges['tuples'] = tuple(zip(self.edges.source, self.edges.target))
@@ -153,11 +153,11 @@ class IQLNetwork:
 
     def load_layout_json(self):
         '''Loads a layout exported from Gephi as JSON.'''
-        with open(self._cfgs['nodecoordsjson']) as json_data:
+        with open(self.nodecoordsjson) as json_data:
             data = json.load(json_data)
 
         nodecoords = pd.DataFrame(data['nodes'])[['x', 'y']]
-        nodecoords.index.name = self._cfgs['id']
+        nodecoords.index.name = self.id
         nodecoords.reset_index(inplace=True)
 
         # as separate x, y cols
@@ -167,12 +167,12 @@ class IQLNetwork:
         self.nodes['coords'] = list(zip(self.nodes.x, self.nodes.y))
 
         self.edges = pd.merge(self.edges, nodecoords,
-                left_on='source', right_on=self._cfgs['id'])
-        self.edges = self.edges.drop([self._cfgs['id']],axis=1)
+                left_on='source', right_on=self.id)
+        self.edges = self.edges.drop([self.id],axis=1)
         self.edges = pd.merge(self.edges, nodecoords,
-                left_on='target', right_on=self._cfgs['id'],
+                left_on='target', right_on=self.id,
                 suffixes=tuple(['_source', '_target']))
-        self.edges = self.edges.drop([self._cfgs['id']], axis=1)
+        self.edges = self.edges.drop([self.id], axis=1)
 
         # tuples for edgelist
         self.edges['tuples'] = tuple(zip(self.edges.source, self.edges.target))
@@ -189,4 +189,4 @@ class IQLNetwork:
         pass
 
     def write_dot(self):
-        write_dot(self.Graph, './{}-network.dot'.format(self._cfgs['collection']))
+        write_dot(self.Graph, './{}-network.dot'.format(self.collection))
