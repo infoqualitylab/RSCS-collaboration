@@ -210,7 +210,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 self._draw_sub_nodes(periodnodesdf, self.review, self.review_shape, self.new_highlight)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, periodedgesdf['tuples'].to_list(), 
-                        edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=5)
+                        edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=self.arrow_size)
 
 
             elif i > 0 and self.highlight_new:
@@ -240,10 +240,10 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 old_edges, new_edges = self._split_old_new(i, period, 'edges')
 
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=old_edges, 
-                        edge_color=self.edge_color, width=self.edge_width, node_size=self.node_size, arrowsize=5)
+                        edge_color=self.edge_color, width=self.edge_width, node_size=self.node_size, arrowsize=self.arrow_size)
                 
                 nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges, 
-                        edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=5)
+                        edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=self.arrow_size)
             else:
                 # don't split on old v. new, i.e., when NOT highlighting new items.
                 self._draw_sub_nodes(periodnodesdf, self.study, self.study_shape)
@@ -258,7 +258,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 self._draw_sub_nodes(periodnodesdf, self.review, self.review_shape)
 
                 nx.draw_networkx_edges(self.Graph, nodepos, periodedgesdf['tuples'].to_list(), 
-                        edge_color=self.edge_color, width=self.edge_width, node_size=self.node_size, arrowsize=5)
+                        edge_color=self.edge_color, width=self.edge_width, node_size=self.node_size, arrowsize=self.arrow_size)
         
             SRs = periodnodesdf.loc[periodnodesdf[self.kind] == self.review]
             SRpos = dict(SRs[[self.id,'coords']].values)
