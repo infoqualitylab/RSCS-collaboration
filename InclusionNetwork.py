@@ -138,8 +138,12 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 edgecolors=edge)
 
     def _split_old_new(self,i, period, component='nodes'):
-        # distinguish new nodes from old nodes by doing a set difference
-        # with the previous period.
+        '''
+        Splits old nodes from new graph components by doing a set difference
+        between the previous and current periods.
+
+        components can be either 'nodes' or 'edges'
+        '''
         current = period[component]
         previous = self.periods[i-1][component]
 
