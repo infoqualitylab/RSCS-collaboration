@@ -190,8 +190,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 self.create_graph(period)
                 self.layout_graph()
 
-            fig, axs = plt.subplots()
-
             # this tiles left-to-right, top-to-bottom
             if self.tiled:
                 plt.sca(axs[i//2, i%2])
@@ -289,8 +287,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
             if not self.tiled:
                 plt.savefig(pngstr+f'-{i}.png', dpi=self.dpi)
-
-            plt.clf()
+                plt.cla()
 
         if self.tiled:
             plt.savefig(pngstr+'-tiled.png', dpi=self.dpi)
