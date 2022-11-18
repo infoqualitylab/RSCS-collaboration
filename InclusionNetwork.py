@@ -82,38 +82,45 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
         # loop over unique search years grabbing just nodes <= y
         # this is a list of search years as ints
-        searchPeriods = self.nodes[self.nodes[self.kind] == self.review][self.searchyear].unique().astype(int)
+        searchPeriods = self.nodes[self.nodes[self.kind] == \
+                self.review][self.searchyear].unique().astype(int)
         searchPeriods = sorted(searchPeriods)
 
         for y in searchPeriods:
             # grab SRs by search year, PSRs by publication year 
-            searchPeriodSRs = self.nodes[(self.nodes[self.kind] == self.review) & (self.nodes[self.searchyear] <= y)]
-            searchPeriodPSRs = self.nodes[(self.nodes[self.kind] == self.study) & (self.nodes[self.year] <= y)]
+            searchPeriodSRs = self.nodes[(self.nodes[self.kind] == \
+                    self.review) & (self.nodes[self.searchyear] <= y)]
+            searchPeriodPSRs = self.nodes[(self.nodes[self.kind] == \
+                    self.study) & (self.nodes[self.year] <= y)]
 
             nodes = pd.concat([searchPeriodSRs,searchPeriodPSRs])
-            edges = self.edges[(self.edges['source'].isin(nodes[self.id])) & (self.edges['target'].isin(nodes[self.id]))]
+            edges = self.edges[(self.edges['source'].isin(nodes[self.id])) &
+                    (self.edges['target'].isin(nodes[self.id]))]
          
             # sources, targets keys are used when drawing period-specific edges
-            self.periods.append({'searchyear': y, 
+            # edges used when splitting old, new edges
+            self.periods.append({'searchyear': y,
                 'nodes': nodes[self.id].tolist(),
-                'edges': list(zip(edges['source'].tolist(), edges['target'].tolist())), # list of tuples...
+                'edges': list(zip(edges['source'].tolist(), 
+                    edges['target'].tolist())),
                 'sources': edges['source'].tolist(),
                 'targets': edges['target'].tolist()})
 
         # handling any PSRs that happen AFTER the last SRR search year
         # what to put for searchyear is a question... 
         # going with max PSR publication year
-        maxPSRyear = max(self.nodes[self.nodes[self.kind] == self.study][self.year])
+        maxPSRyear = max(self.nodes[self.nodes[self.kind] == \
+                self.study][self.year])
 
         if maxPSRyear > searchPeriods[-1]:
             self.periods.append({'searchyear': maxPSRyear,
                 'nodes': self.nodes[self.id].tolist(),
-                'edges': list(zip(self.edges['source'].tolist(), self.edges['target'].tolist())),
+                'edges': list(zip(self.edges['source'].tolist(),
+                    self.edges['target'].tolist())),
                 'sources': self.edges['source'].tolist(),
                 'targets': self.edges['target'].tolist()
                 })
         
-
     def _draw_node_subset(self,nodes, kind, shape, edge=None):
         '''
         Used to draw a subset of the nodes. Wrapper around draw_networkx_nodes.
