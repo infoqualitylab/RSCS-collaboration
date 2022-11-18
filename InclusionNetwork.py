@@ -209,12 +209,11 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             else:
                 yearlabel = 'search year'
 
+            titlestr = f"({ascii_lowercase[i]}) {yearlabel}: {period['searchyear']}"
             if self.tiled:
-                axs[i//2, i%2].set_title('({}) {}: {}'.format(ascii_lowercase[i], yearlabel,
-                    period['searchyear'])) 
+                axs[i//2, i%2].set_title(titlestr)
             else:
-                axs.set_title('({}) {}: {}'.format(ascii_lowercase[i], yearlabel,
-                    period['searchyear'])) 
+                axs.set_title(titlestr)
 
             if i == 0 and self.highlight_new:
                 # In the first period, there aren't any "new" items in the sense of
