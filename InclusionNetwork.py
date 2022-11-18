@@ -115,15 +115,27 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         
 
     def _draw_node_subset(self,nodes, kind, shape, edge=None):
-        # grab the subset of review vs study kind
+        '''
+        Used to draw a subset of the nodes. Wrapper around draw_networkx_nodes.
+
+        Nodes have to be drawn as subsets with individiual calls to
+        draw_network_x because not all options will take a sequence type, e.g.,
+        node shape can only be a string, not a sequence of strings.
+        '''
+        # kind is review or study
         subnodes = nodes[nodes[self.kind] == kind]
+
         # convert to dict for networkX
-        # for sizing by degree, change node_size to subnodes['degree'].to_list()
         subnodespos = dict(subnodes[[self.id, 'coords']].values)
         
-        nx.draw_networkx_nodes(self.Graph, subnodespos, nodelist=subnodespos.keys(),
-            node_color=subnodes['fill'].to_list(), node_size=self.node_size,
-            node_shape=shape, edgecolors=edge)
+        # for sizing by degree, change node_size to subnodes['degree'].to_list()
+        nx.draw_networkx_nodes(self.Graph,
+                subnodespos,
+                nodelist=subnodespos.keys(),
+                node_color=subnodes['fill'].to_list(),
+                node_size=self.node_size,
+                node_shape=shape,
+                edgecolors=edge)
 
     def _split_old_new(self,i, period, component='nodes'):
         # distinguish new nodes from old nodes by doing a set difference
