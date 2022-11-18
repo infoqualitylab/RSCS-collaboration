@@ -172,6 +172,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             self.create_graph()
             self.layout_graph()
 
+        pngstr = f'{self.collection}-inclusion-net-{self.engine}-{coordstr}'
+
         # matplotlib setup for tiled subplots
         if self.tiled:
             fig, axs = plt.subplots(ceil(len(self.periods)/2), 2)
@@ -286,9 +288,9 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             plt.tight_layout()
 
             if not self.tiled:
-                plt.savefig(f'{self.collection}-{coordstr}-inclusion-net-{self.engine}-{i}.png', dpi=self.dpi)
+                plt.savefig(pngstr+f'-{i}.png', dpi=self.dpi)
 
             plt.clf()
 
         if self.tiled:
-            plt.savefig(f'{self.collection}-{coordstr}-tiled-inclusion-net-{self.engine}.png', dpi=self.dpi)
+            plt.savefig(pngstr+'-tiled.png', dpi=self.dpi)
