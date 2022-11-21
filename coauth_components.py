@@ -1,6 +1,4 @@
-# Example application cycling through all the available pygraphviz layouts
-# which will work (but not necessarily make sense) for the ExRx or Salt 
-# Controversy data.
+# Example application for drawing connected components of a coauthor network
 import CoauthorNetwork
 import argparse
 
