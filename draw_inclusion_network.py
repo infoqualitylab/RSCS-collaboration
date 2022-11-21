@@ -1,11 +1,13 @@
-# Example application cycling through all the available pygraphviz layouts
-# which will work (but not necessarily make sense) for the ExRx or Salt 
-# Controversy data.
+#!/usr/bin/env python3
+
+# Example application drawing an inclusion network. Options, paths, etc.
+# are set in a YAML config file.
 import InclusionNetwork
 import argparse
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='draw an inclusion network evolution over time')
+    parser = argparse.ArgumentParser(description='''draw an inclusion network 
+    evolution over time''')
     parser.add_argument('cfgyaml', help='path to YAML config file')
     args = parser.parse_args()
 
