@@ -24,3 +24,6 @@ arrowsize: 5
 
 # whether to draw only connected components
 only_connected: False
+
+usecmap: 'nodes'
+cmap: 'BrBG'

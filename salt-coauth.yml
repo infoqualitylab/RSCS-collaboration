@@ -24,3 +24,6 @@ arrowsize: 5
 
 # draw only connected components?
 only_connected: True
+
+usecmap: 'nodes'
+cmap: 'viridis'

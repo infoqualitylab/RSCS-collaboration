@@ -17,7 +17,6 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         self.edge_color='black'
         self.edge_width = 1.0
         self.node_border = 'black'
-        self.cmap = 'BrBG'
 
     def set_node_aesthetics(self, const_size=True):
         if const_size:
@@ -29,7 +28,6 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         self.node_color = '#e05b5b'
         self.node_shape = 'o'
         #self.node_border = '#a14242'
-        self.cmap = 'viridis'
         '''
         # for categorical coloring where percent_srrs is cut into
         # [0.0, 1.0], (0.1, 0.9], (0.9, 1.0]
@@ -135,7 +133,7 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
                 
 
 
-    def draw(self, useCmap=''):
+    def draw(self):
         '''Default drawing is of a single static image using self.engine for layout.'''
         print('drawing graph')
         self.set_node_aesthetics()
@@ -156,10 +154,10 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         # self.nodes is a pandas dataframe with x, y, and coords cols.
         nodespos = dict(self.nodes[[self.id, 'coords']].values)
         n = None
-        if useCmap == 'nodes':
+        if self.usecmap == 'nodes':
             n = self._draw_cmap_nodes(nodespos)
             self._draw_edges(nodespos)
-        elif useCmap == 'edges':
+        elif self.usecmap == 'edges':
             self._draw_nodes(nodespos)
             self._draw_cmap_edges(nodespos)
         else:
