@@ -240,7 +240,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 self._draw_node_subset(periodnodesdf, self.review,
                         self.review_shape, self.new_highlight)
 
-                nx.draw_networkx_edges(self.Graph, nodepos,
+                nx.draw_networkx_edges(self.Graph,
+                        nodepos,
                         periodedgesdf['tuples'].to_list(),
                         edge_color=self.new_highlight,
                         width=self.edge_width,
@@ -273,14 +274,16 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
                 old_edges, new_edges = self._split_old_new(i, period, 'edges')
                 
-                nx.draw_networkx_edges(self.Graph, nodepos,
+                nx.draw_networkx_edges(self.Graph,
+                        nodepos,
                         edgelist=old_edges,
                         edge_color=self.edge_color,
                         width=self.edge_width,
                         node_size=self.node_size,
                         arrowsize=self.arrowsize)
                 
-                nx.draw_networkx_edges(self.Graph, nodepos,
+                nx.draw_networkx_edges(self.Graph,
+                        nodepos,
                         edgelist=new_edges,
                         edge_color=self.new_highlight,
                         width=self.edge_width,
@@ -295,7 +298,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 self._draw_node_subset(periodnodesdf, self.review,
                         self.review_shape)
 
-                nx.draw_networkx_edges(self.Graph, nodepos,
+                nx.draw_networkx_edges(self.Graph,
+                        nodepos,
                         periodedgesdf['tuples'].to_list(),
                         edge_color=self.edge_color,
                         width=self.edge_width,
@@ -306,7 +310,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             PSRs = periodnodesdf.loc[periodnodesdf[self.kind] == self.study]
             PSRpos = dict(PSRs[[self.id,'coords']].values)
 
-            nx.draw_networkx_labels(self.Graph, PSRpos,
+            nx.draw_networkx_labels(self.Graph,
+                    PSRpos,
                     labels = dict(PSRs[[self.id,'labels']].values),
                     font_size=self.study_label_size,
                     font_color=self.study_label_color)
@@ -314,7 +319,8 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             SRs = periodnodesdf.loc[periodnodesdf[self.kind] == self.review]
             SRpos = dict(SRs[[self.id,'coords']].values)
 
-            nx.draw_networkx_labels(self.Graph, SRpos,
+            nx.draw_networkx_labels(self.Graph,
+                    SRpos,
                     labels = dict(SRs[[self.id,'labels']].values),
                     font_size=self.review_label_size,
                     font_color=self.review_label_color)
