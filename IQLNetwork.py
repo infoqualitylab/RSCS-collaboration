@@ -80,8 +80,8 @@ class IQLNetwork:
                 columns={'citing_id':'source','cited_id':'target'}
                 )
 
-        # drop any rows where source or target are NaNs, this was needed while
-        # the CSVs were in flux, revisit once those are nailed down.
+        # drop any rows where source or target are NaNs, i.e., in the CSV they
+        # are empty. This was needed while the CSVs were in flux. 
         self.edges = self.edges[self.edges['target'].notnull()]
         self.edges = self.edges[self.edges['source'].notnull()]
 
