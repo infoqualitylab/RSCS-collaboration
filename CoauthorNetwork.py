@@ -56,12 +56,13 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         # alpha is just the norm of the no_of_reports_coauthored column
         # but I'm rescaling to [0.1, 1] instead of [0,1] so that there's 
         # always some visibility.
-        a = ((self.edges['no_of_reports_coauthored'] - coauth_min)/(coauth_max - coauth_min)) * 0.9 + 0.1
+        a = ((self.edges['no_of_reports_coauthored'] - coauth_min) /
+                (coauth_max - coauth_min)) * 0.9 + 0.1
         self.edges['rgba'] = tuple(zip(r, g, b, a))
 
     def _draw_nodes(self, nodespos):
-        nx.draw_networkx_nodes(self.Graph, nodespos, 
-                #node_color=self.node_color, 
+        nx.draw_networkx_nodes(self.Graph,
+                nodespos, 
                 node_color=self.nodes['fill'],
                 node_size=self.node_size, 
                 node_shape=self.node_shape, 
@@ -70,7 +71,8 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
                 edgecolors=self.node_border)
 
     def _draw_cmap_nodes(self, nodespos):
-        n = nx.draw_networkx_nodes(self.Graph, nodespos,
+        n = nx.draw_networkx_nodes(self.Graph,
+                nodespos,
                 cmap = self.cmap,
                 vmin = self.nodes['percent_srrs'].min(),
                 vmax = self.nodes['percent_srrs'].max(),
@@ -83,15 +85,16 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
 
     def _draw_edges(self, nodespos):
         # for edge_color, want a list of tuples
-        nx.draw_networkx_edges(self.Graph, nodespos, 
+        nx.draw_networkx_edges(self.Graph,
+                nodespos, 
                 arrowsize=self.arrowsize,
                 width=self.edge_width, 
                 node_size=self.node_size, 
-                #edge_color=self.edges['rgba'])
                 edge_color=self.edges['fill'])
     
     def _draw_cmap_edges(self, nodespos):
-        nx.draw_networkx_edges(self.Graph, nodespos, 
+        nx.draw_networkx_edges(self.Graph,
+                nodespos, 
                 edge_cmap=self.cmap,
                 edge_vmin=self.edges['percent_srrs'].min(),
                 edge_vmax=self.edges['percent_srrs'].max(),
@@ -99,11 +102,10 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
                 arrowsize=self.arrowsize,
                 width=self.edge_width, 
                 node_size=self.node_size)
-                
-
 
     def draw(self):
-        '''Default drawing is of a single static image using self.engine for layout.'''
+        '''Default drawing is of a single static image using self.engine for 
+        layout.'''
         print('drawing graph')
         self.set_node_aesthetics()
         self.set_edge_aesthetics()
@@ -119,7 +121,6 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
 
         fig, axs = plt.subplots()
         plt.figure(figsize=(self.figw,self.figh))
-        #plt.rcParams['font.size'] = 14
         # self.nodes is a pandas dataframe with x, y, and coords cols.
         nodespos = dict(self.nodes[[self.id, 'coords']].values)
         n = None
@@ -136,7 +137,8 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         plt.title('{} coauthor network'.format(self.collection))
         plt.axis('off')
         plt.tight_layout()
-        # this works, but the bar is ugly!
+
+        # add a colormap legend this works, but the bar is ugly!
         '''
         sm = plt.cm.ScalarMappable(cmap=self.cmap)
         sm.set_array([])
@@ -151,13 +153,14 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         cb.ax.tick_params(labelsize=8)
         '''
 
-        #plt.legend(['a', 'b', 'c'])
-        plt.savefig('{}-coauthor-network-{}-{}.png'.format(self.collection, self.engine, connectedstr), dpi=300)
+        plt.savefig('{}-coauthor-network-{}-{}.png'.format(self.collection, 
+            self.engine, connectedstr), dpi=300)
 
     def filter_connected_components(self):
-        # really, just the two largest, not all.
+        # just the two largest, not all.
         # nx.connected_components returns a generator of sets
-        comps = [_ for _ in sorted(nx.connected_components(self.Graph), key=len, reverse=True)]
+        comps = [_ for _ in sorted(nx.connected_components(self.Graph), 
+            key=len, reverse=True)]
         top2comps = comps[:2]
         smallercomps = comps[2:]
         # want to combine those two sets and then filter
