@@ -13,7 +13,4 @@ if __name__ == '__main__':
     network.load_cfgs(args.cfgyaml)
     network.load_nodes()
     network.load_edges()
-    network.create_graph()
-    network.filter_connected_components()
-    network.layout_graph()
     network.draw(useCmap='')

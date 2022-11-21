@@ -21,3 +21,6 @@ edgescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/
 
 engine: "neato"
 arrowsize: 5
+
+# draw only connected components?
+only_connected: True

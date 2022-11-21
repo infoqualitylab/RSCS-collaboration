@@ -141,6 +141,15 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         self.set_node_aesthetics()
         self.set_edge_aesthetics()
 
+        self.create_graph()
+        if self.only_connected:
+            self.filter_connected_components()
+            connectedstr = 'only-connected'
+        else:
+            connectedstr = 'entire'
+        self.layout_graph()
+        
+
         fig, axs = plt.subplots()
         plt.figure(figsize=(self.figw,self.figh))
         #plt.rcParams['font.size'] = 14
@@ -176,7 +185,7 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         '''
 
         #plt.legend(['a', 'b', 'c'])
-        plt.savefig('{}-coauthor-network-{}.png'.format(self.collection, self.engine), dpi=300)
+        plt.savefig('{}-coauthor-network-{}-{}.png'.format(self.collection, self.engine, connectedstr), dpi=300)
 
     def filter_connected_components(self):
         # really, just the two largest, not all.
