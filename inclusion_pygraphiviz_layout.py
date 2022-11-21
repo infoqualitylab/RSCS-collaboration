@@ -13,5 +13,4 @@ if __name__ == '__main__':
     network.load_cfgs(args.cfgyaml)
     network.load_nodes()
     network.load_edges()
-    network.set_aesthetics()
     network.draw()

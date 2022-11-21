@@ -182,10 +182,6 @@ class IQLNetwork:
         # tuples for edgelist
         self.edges['tuples'] = tuple(zip(self.edges.source, self.edges.target))
 
-    def set_aesthetics(self):
-        # overload in subclasses
-        pass
-
     def draw(self):
         # overload in subclasses
         pass

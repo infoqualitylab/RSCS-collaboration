@@ -41,11 +41,11 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         # NaN's and the column type will be float instead of int.
         self.nodes = self.nodes.merge(tmp, how='left')
 
-    def set_aesthetics(self):
-        '''Set some per-node aesthetics. Note that networkX drawing funcs 
-        only accept per-node values for some node attributes, but not all.
+    def set_column_aesthetics(self):
+        '''Set some per-node aesthetics as columns in the underlying Pandas 
+        dataframe. Note that networkX drawing funcs only accept sequences for 
+        some attributes - not all!
         '''
-        # add fill colors
         try:
             conditions = [
                 self.nodes[self.kind].eq(self.review),
@@ -55,7 +55,6 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             self.nodes['fill'] = np.select(conditions, choices, default='black')
         except KeyError:
             self.nodes['fill'] = 'lightgray'
-
         # add node labels
         # first add a column where the id is a str
         self.nodes['labels'] = self.nodes[self.id].astype('str')
@@ -163,6 +162,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         '''
 
         self._gather_periods()
+        self.set_column_aesthetics()
 
         # if fixed coords, we create and layout the graph based on the entire, 
         # final network.
