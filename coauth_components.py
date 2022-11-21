@@ -16,6 +16,4 @@ if __name__ == '__main__':
     network.create_graph()
     network.filter_connected_components()
     network.layout_graph()
-    network.set_node_aesthetics()
-    network.set_edge_aesthetics()
     network.draw(useCmap='')

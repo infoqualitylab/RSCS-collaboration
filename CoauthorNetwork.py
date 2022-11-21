@@ -138,6 +138,9 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
     def draw(self, useCmap=''):
         '''Default drawing is of a single static image using self.engine for layout.'''
         print('drawing graph')
+        self.set_node_aesthetics()
+        self.set_edge_aesthetics()
+
         fig, axs = plt.subplots()
         plt.figure(figsize=(self.figw,self.figh))
         #plt.rcParams['font.size'] = 14
