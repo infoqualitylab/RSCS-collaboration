@@ -31,13 +31,21 @@ def read_encoded_csv(csvpath):
     return df
 
 class IQLNetwork:
-    '''Class to wrap networkX and matplotlib calls.'''
+    '''Base class for both inclusion and coauthor networks.
+    Class provides methods for common functionality, e.g., loading data CSVs;
+    loading and creating attrs from YAML config files; creating and laying out
+    networkX graphs, etc. Drawing and supported functionality is handled
+    by the derived classes.
+    '''
     def __init__(self):
         self.nodes = None
         self.edges = None
         self.Graph = None
 
     def load_cfgs(self, cfgpath):
+        '''Loads various configuration options from YAML files. Uses setattr
+        to make these options class members.
+        '''
         print(f'loading configs from {cfgpath}')
         with open(cfgpath, 'r') as cfgfile:
             yaml_cfgs = yaml.load(cfgfile, Loader=yaml.FullLoader)
@@ -52,20 +60,21 @@ class IQLNetwork:
                 setattr(self, k, v)
 
     def load_nodes(self):
+        '''Loads node data from nodescsvpath defined in YAML config.'''
         self.nodes = read_encoded_csv(self.nodescsvpath)
 
         # clean up the column names for consistency
         self.nodes.columns = self.nodes.columns.str.strip().str.lower()
         # strip string column data
-        self.nodes = self.nodes.applymap(lambda x: x.strip().lower() if type(x) == str else x)
+        self.nodes = self.nodes.applymap(lambda x: x.strip().lower() \
+                if type(x) == str else x)
 
     def load_edges(self):
+        '''Loads edge data from edgescsvpath defined in YAML config.'''
         self.edges = read_encoded_csv(self.edgescsvpath) 
 
-        # MVM - this column renaming was originally because other
-        # things (Gephi?) assumed 'source' 'target' names
-        # MVM - change this to a check if 'source' 'target' not there
-        # or to a YAML attr
+        # This column renaming was originally because other
+        # things (Gephi?) assumed 'source' 'target' names for edge endpoints.
         self.edges.columns = self.edges.columns.str.strip().str.lower()
         self.edges = self.edges.rename(
                 columns={'citing_id':'source','cited_id':'target'}
@@ -82,7 +91,7 @@ class IQLNetwork:
         '''
 
         # for free coordinates, the graph is recreated multiple times
-        # so it needs to be cleared.
+        # so if one already exists it needs to be cleared.
         if self.Graph is not None:
             self.Graph.clear()
 
@@ -103,7 +112,8 @@ class IQLNetwork:
 
     def layout_graph(self):
         '''Lays out the inclusion network using a pygraphviz algorithm. NetworkX
-        interfaces pygraphviz through both/either pydot or agraph. Viable options are:
+        interfaces pygraphviz through both/either pydot or agraph. Viable 
+        options are for self.engine (defined in YAML):
         neato, dot, twopi, circo, fdp, sfdp
         '''
         print('laying out graph')
@@ -114,7 +124,8 @@ class IQLNetwork:
             self.nodes = self.nodes.drop(columns=['coords', 'x', 'y'])
 
         # layout graph and grab coordinates
-        fullgraphpos = nx.nx_agraph.graphviz_layout(self.Graph, prog=self.engine)
+        fullgraphpos = nx.nx_agraph.graphviz_layout(self.Graph, 
+                prog=self.engine)
 
         # merge the coordinates into the node and edge data frames
         nodecoords = pd.DataFrame.from_dict(fullgraphpos, orient='index', 
@@ -139,7 +150,8 @@ class IQLNetwork:
         # tuples for edgelist
         self.edges['tuples'] = tuple(zip(self.edges.source, self.edges.target))
         # clean up 
-        self.edges = self.edges.drop(columns=['x_source', 'x_target', 'y_source', 'y_target'])
+        self.edges = self.edges.drop(columns=['x_source', 'x_target', 
+            'y_source', 'y_target'])
 
     def load_layout_json(self):
         '''Loads a layout exported from Gephi as JSON.'''
@@ -168,9 +180,6 @@ class IQLNetwork:
         self.edges['tuples'] = tuple(zip(self.edges.source, self.edges.target))
 
     def set_aesthetics(self):
-        '''Set some per-node aesthetics. Note that networkX drawing funcs 
-        only accept per-node values for some node attributes, but not all.
-        '''
         # overload in subclasses
         pass
 
@@ -179,4 +188,7 @@ class IQLNetwork:
         pass
 
     def write_dot(self):
+        '''Save self.Graph as a .dot file for external rendering with
+        command line GraphViz.
+        '''
         write_dot(self.Graph, './{}-network.dot'.format(self.collection))
