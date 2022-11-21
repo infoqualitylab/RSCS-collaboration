@@ -222,45 +222,69 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 targets = periodnodesdf[periodnodesdf[self.id].isin(periodedgesdf['target'])]
                 nontargets = periodnodesdf[~periodnodesdf[self.id].isin(periodedgesdf['target'])]
 
-                self._draw_node_subset(targets, self.study, self.study_shape, self.new_highlight)
+                self._draw_node_subset(targets, self.study, self.study_shape,
+                        self.new_highlight)
                 self._draw_node_subset(nontargets, self.study, self.study_shape)
+                self._draw_node_subset(periodnodesdf, self.review,
+                        self.review_shape, self.new_highlight)
 
-                self._draw_node_subset(periodnodesdf, self.review, self.review_shape, self.new_highlight)
-
-                nx.draw_networkx_edges(self.Graph, nodepos, periodedgesdf['tuples'].to_list(), 
-                        edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=self.arrow_size)
+                nx.draw_networkx_edges(self.Graph, nodepos,
+                        periodedgesdf['tuples'].to_list(),
+                        edge_color=self.new_highlight,
+                        width=self.edge_width,
+                        node_size=self.node_size,
+                        arrowsize=self.arrow_size)
 
             elif i > 0 and self.highlight_new:
-                # After the first period, there is a difference between new and old items
-                # so only the new items receive the highlighting. This has to be done
-                # by splitting because the networkX drawing 
+                # After the first period, there is a difference between new and
+                # old items so only the new items receive the highlighting. 
+                # This has to be done by splitting because the networkX drawing
                 # review period.
 
                 old_nodes, new_nodes = self._split_old_new(i, period, 'nodes')
                 oldperiodnodesdf = self.nodes[self.nodes[self.id].isin(old_nodes)]
                 newperiodnodesdf = self.nodes[self.nodes[self.id].isin(new_nodes)]
 
-                self._draw_node_subset(oldperiodnodesdf, self.study, self.study_shape, self.study_color)
-                self._draw_node_subset(newperiodnodesdf, self.study, self.study_shape, self.new_highlight)
+                self._draw_node_subset(oldperiodnodesdf, self.study,
+                        self.study_shape, self.study_color)
+                self._draw_node_subset(newperiodnodesdf, self.study,
+                        self.study_shape, self.new_highlight)
 
-                self._draw_node_subset(oldperiodnodesdf, self.review, self.review_shape, self.review_color)
-                self._draw_node_subset(newperiodnodesdf, self.review, self.review_shape, self.new_highlight)
+                self._draw_node_subset(oldperiodnodesdf, self.review,
+                        self.review_shape, self.review_color)
+                self._draw_node_subset(newperiodnodesdf, self.review,
+                        self.review_shape, self.new_highlight)
 
                 old_edges, new_edges = self._split_old_new(i, period, 'edges')
                 
-                nx.draw_networkx_edges(self.Graph, nodepos, edgelist=old_edges, 
-                        edge_color=self.edge_color, width=self.edge_width, node_size=self.node_size, arrowsize=self.arrow_size)
+                nx.draw_networkx_edges(self.Graph, nodepos,
+                        edgelist=old_edges,
+                        edge_color=self.edge_color,
+                        width=self.edge_width,
+                        node_size=self.node_size,
+                        arrowsize=self.arrow_size)
                 
-                nx.draw_networkx_edges(self.Graph, nodepos, edgelist=new_edges, 
-                        edge_color=self.new_highlight, width=self.edge_width, node_size=self.node_size, arrowsize=self.arrow_size)
+                nx.draw_networkx_edges(self.Graph, nodepos,
+                        edgelist=new_edges,
+                        edge_color=self.new_highlight,
+                        width=self.edge_width,
+                        node_size=self.node_size,
+                        arrowsize=self.arrow_size)
             else:
-                # Otherwise, don't split on old v. new, i.e., when NOT highlighting new items.
-                self._draw_node_subset(periodnodesdf, self.study, self.study_shape)
+                # Otherwise, don't split on old v. new, 
+                # i.e., when NOT highlighting new items.
+                self._draw_node_subset(periodnodesdf, self.study,
+                        self.study_shape)
 
-                self._draw_node_subset(periodnodesdf, self.review, self.review_shape)
+                self._draw_node_subset(periodnodesdf, self.review,
+                        self.review_shape)
 
-                nx.draw_networkx_edges(self.Graph, nodepos, periodedgesdf['tuples'].to_list(), 
-                        edge_color=self.edge_color, width=self.edge_width, node_size=self.node_size, arrowsize=self.arrow_size)
+                nx.draw_networkx_edges(self.Graph, nodepos,
+                        periodedgesdf['tuples'].to_list(),
+                        edge_color=self.edge_color,
+                        width=self.edge_width,
+                        node_size=self.node_size,
+                        arrowsize=self.arrow_size)
 
             # Draw the labels last
             PSRs = periodnodesdf.loc[periodnodesdf[self.kind] == self.study]
@@ -268,14 +292,16 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
 
             nx.draw_networkx_labels(self.Graph, PSRpos,
                     labels = dict(PSRs[[self.id,'labels']].values),
-                    font_size=self.study_label_size, font_color=self.study_label_color)
+                    font_size=self.study_label_size,
+                    font_color=self.study_label_color)
         
             SRs = periodnodesdf.loc[periodnodesdf[self.kind] == self.review]
             SRpos = dict(SRs[[self.id,'coords']].values)
 
             nx.draw_networkx_labels(self.Graph, SRpos,
                     labels = dict(SRs[[self.id,'labels']].values),
-                    font_size=self.review_label_size, font_color=self.review_label_color)
+                    font_size=self.review_label_size,
+                    font_color=self.review_label_color)
 
             plt.axis('off')
 
