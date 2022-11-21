@@ -63,6 +63,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 self.review_label + self.nodes.labels, self.nodes.labels)
 
     def node_size_by_degree(self):
+        # EXPERIMENTAL - this was a requested feature that was then not used.
         # get node degrees for sizing. nx.degree() returns a DiDegreeView, 
         # which is a wrapper around a dictionary. 
         degsView = nx.degree(self.Graph)
