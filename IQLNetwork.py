@@ -89,13 +89,13 @@ class IQLNetwork:
         '''Creates a networkX directed graph for input to layout and 
         drawing algorithms.
         '''
+        print('creating graph')
 
         # for free coordinates, the graph is recreated multiple times
         # so if one already exists it needs to be cleared.
         if self.Graph is not None:
             self.Graph.clear()
 
-        print('creating graph')
         if self.directed:
             self.Graph = nx.DiGraph()
         else:
