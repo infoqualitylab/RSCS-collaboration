@@ -14,10 +14,10 @@ figw: 5.5
 figh: 4.25
 
 # absolute path to article attribute CSV
-nodescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/salt_coauthor_network_attribute_list.csv
+nodescsvpath: "/home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/salt_coauthor_network_attribute_list.csv"
 
 # absolute path to inclusion net edges CSV
-edgescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/salt_coauthor_network_edgelist.csv
+edgescsvpath: "/home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/salt_coauthor_network_edgelist.csv"
 
 engine: "neato"
 arrowsize: 5
@@ -25,5 +25,14 @@ arrowsize: 5
 # draw only connected components?
 only_connected: True
 
-usecmap: 'nodes'
-cmap: 'viridis'
+usecmap: "nodes"
+cmap: "viridis"
+
+node_alpha: 1.0
+edge_color: "black"
+edge_width: 1.0
+node_border: "lightgray"
+linewidths: 0.5
+node_size: 10
+node_color: "#e05b5b"
+node_shape: "o"

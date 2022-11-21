@@ -14,16 +14,25 @@ figw: 11
 figh: 8.5
 
 # absolute path to article attribute CSV
-nodescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/ExRx_coauthor_network_attribute_list.csv
+nodescsvpath: "/home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/ExRx_coauthor_network_attribute_list.csv"
 
 # absolute path to inclusion net edges CSV
-edgescsvpath: /home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/ExRx_coauthor_network_edgelist.csv
+edgescsvpath: "/home/mvanmoer/Vis/projects/schneider-rscs/data/original/Summer22/ExRx_coauthor_network_edgelist.csv"
 
-engine: neato
+engine: "neato"
 arrowsize: 5
 
 # whether to draw only connected components
-only_connected: False
+only_connected: True
 
-usecmap: 'nodes'
-cmap: 'BrBG'
+usecmap: "nodes"
+cmap: "BrBG"
+
+node_alpha: 1.0
+edge_color: "black"
+edge_width: 1.0
+node_border: "lightgray"
+linewidths: 0.5
+node_size: 10
+node_color: "#e05b5b"
+node_shape: "o"
