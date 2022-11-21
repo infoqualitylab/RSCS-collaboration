@@ -194,8 +194,13 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             if self.tiled:
                 plt.sca(axs[i//2, i%2])
 
-            periodnodesdf = self.nodes[self.nodes[self.id].isin(period['nodes'])]
-            periodedgesdf = self.edges[(self.edges['source'].isin(period['sources']) & self.edges['target'].isin(period['targets']))]
+            periodnodesdf = self.nodes[
+                    self.nodes[self.id].isin(period['nodes'])
+                    ]
+            periodedgesdf = self.edges[
+                    (self.edges['source'].isin(period['sources']) &
+                        self.edges['target'].isin(period['targets']))
+                    ]
 
             # nodepos contains all the node coords, regardless of kind, and is
             # used to draw edges and node-labels.
@@ -209,18 +214,24 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             else:
                 yearlabel = 'search year'
 
-            titlestr = f"({ascii_lowercase[i]}) {yearlabel}: {period['searchyear']}"
+            titlestr = f"({ascii_lowercase[i]}) {yearlabel}: "
+            titlestr += f"{period['searchyear']}"
+
             if self.tiled:
                 axs[i//2, i%2].set_title(titlestr)
             else:
                 axs.set_title(titlestr)
 
             if i == 0 and self.highlight_new:
-                # In the first period, there aren't any "new" items in the sense of
-                # _split_old_new(), so the highlight color is applied to all SRRs and their
-                # connections.
-                targets = periodnodesdf[periodnodesdf[self.id].isin(periodedgesdf['target'])]
-                nontargets = periodnodesdf[~periodnodesdf[self.id].isin(periodedgesdf['target'])]
+                # In the first period, there aren't any "new" items in the 
+                # sense of _split_old_new(), so the highlight color is applied 
+                # to all SRRs and their connections.
+                targets = periodnodesdf[
+                        periodnodesdf[self.id].isin(periodedgesdf['target'])
+                        ]
+                nontargets = periodnodesdf[
+                        ~periodnodesdf[self.id].isin(periodedgesdf['target'])
+                        ]
 
                 self._draw_node_subset(targets, self.study, self.study_shape,
                         self.new_highlight)
@@ -242,8 +253,12 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                 # review period.
 
                 old_nodes, new_nodes = self._split_old_new(i, period, 'nodes')
-                oldperiodnodesdf = self.nodes[self.nodes[self.id].isin(old_nodes)]
-                newperiodnodesdf = self.nodes[self.nodes[self.id].isin(new_nodes)]
+                oldperiodnodesdf = self.nodes[
+                        self.nodes[self.id].isin(old_nodes)
+                        ]
+                newperiodnodesdf = self.nodes[
+                        self.nodes[self.id].isin(new_nodes)
+                        ]
 
                 self._draw_node_subset(oldperiodnodesdf, self.study,
                         self.study_shape, self.study_color)
