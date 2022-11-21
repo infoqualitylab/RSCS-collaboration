@@ -245,7 +245,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                         edge_color=self.new_highlight,
                         width=self.edge_width,
                         node_size=self.node_size,
-                        arrowsize=self.arrow_size)
+                        arrowsize=self.arrowsize)
 
             elif i > 0 and self.highlight_new:
                 # After the first period, there is a difference between new and
@@ -278,14 +278,14 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                         edge_color=self.edge_color,
                         width=self.edge_width,
                         node_size=self.node_size,
-                        arrowsize=self.arrow_size)
+                        arrowsize=self.arrowsize)
                 
                 nx.draw_networkx_edges(self.Graph, nodepos,
                         edgelist=new_edges,
                         edge_color=self.new_highlight,
                         width=self.edge_width,
                         node_size=self.node_size,
-                        arrowsize=self.arrow_size)
+                        arrowsize=self.arrowsize)
             else:
                 # Otherwise, don't split on old v. new, 
                 # i.e., when NOT highlighting new items.
@@ -300,7 +300,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
                         edge_color=self.edge_color,
                         width=self.edge_width,
                         node_size=self.node_size,
-                        arrowsize=self.arrow_size)
+                        arrowsize=self.arrowsize)
 
             # Draw the labels last
             PSRs = periodnodesdf.loc[periodnodesdf[self.kind] == self.study]

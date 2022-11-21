@@ -47,7 +47,7 @@ dpi: 300
 engine: "neato"
 node_size: 50
 edge_width: 0.5
-arrow_size: 5
+arrowsize: 5
 inconclusive_color: "#8da0cb"
 for_color: "#66c2a5"
 against_color: "#fc8d62"
