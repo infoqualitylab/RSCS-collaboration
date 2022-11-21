@@ -171,7 +171,10 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         if self.fixed:
             coordstr = 'fixed'
             self.create_graph()
-            self.layout_graph()
+            if self.engine == 'precomputed':
+                self.load_layout_json()
+            else:
+                self.layout_graph()
 
         pngstr = f'{self.collection}-inclusion-net-{self.engine}-{coordstr}'
 
