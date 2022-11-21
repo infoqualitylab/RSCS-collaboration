@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Example application for drawing connected components of a coauthor network
 import CoauthorNetwork
 import argparse
