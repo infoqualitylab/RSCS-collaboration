@@ -16,5 +16,4 @@ if __name__ == '__main__':
     network.load_edges()
     network.create_graph()
     network.load_layout_json()
-    network.set_aesthetics()
     network.draw()
