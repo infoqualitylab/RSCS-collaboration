@@ -11,8 +11,8 @@ import IQLNetwork
 from itertools import chain
 
 class CoauthorNetwork(IQLNetwork.IQLNetwork):
-    def __init__(self, engine='neato'):
-        super().__init__(engine)
+    def __init__(self):
+        super().__init__()
         self.node_alpha = 1.0
         self.edge_color='black'
         self.edge_width = 1.0
@@ -173,7 +173,7 @@ class CoauthorNetwork(IQLNetwork.IQLNetwork):
         '''
 
         #plt.legend(['a', 'b', 'c'])
-        plt.savefig('{}-network-{}.png'.format(self.collection, self.engine), dpi=300)
+        plt.savefig('{}-coauthor-network-{}.png'.format(self.collection, self.engine), dpi=300)
 
     def filter_connected_components(self):
         # really, just the two largest, not all.

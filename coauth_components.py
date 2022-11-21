@@ -9,18 +9,13 @@ if __name__ == '__main__':
     parser.add_argument('cfgyaml', help='path to YAML config file')
     args = parser.parse_args()
 
-    # coauthur network hangs on dot and circo layouts.
-    layouts = ['neato', 'twopi', 'fdp', 'sfdp']
-    #layouts = ['neato']
-    for layout in layouts:
-        print(f'starting on {layout} layout')
-        network = CoauthorNetwork.CoauthorNetwork(engine=layout)
-        network.load_cfgs(args.cfgyaml)
-        network.load_nodes()
-        network.load_edges()
-        network.create_graph()
-        network.filter_connected_components()
-        network.layout_graph()
-        network.set_node_aesthetics()
-        network.set_edge_aesthetics()
-        network.draw(useCmap='')
+    network = CoauthorNetwork.CoauthorNetwork()
+    network.load_cfgs(args.cfgyaml)
+    network.load_nodes()
+    network.load_edges()
+    network.create_graph()
+    network.filter_connected_components()
+    network.layout_graph()
+    network.set_node_aesthetics()
+    network.set_edge_aesthetics()
+    network.draw(useCmap='')
