@@ -101,7 +101,9 @@ class IQLNetwork:
         else:
             self.Graph = nx.Graph()
 
-        if self.fixed:
+        if not hasattr(self, 'fixed') or self.fixed:
+            # first clause is for Coauthor Networks which are always fixed
+            # since they don't implement time at the moment.
             # When drawing fixed coords, create Graph from ALL nodes and edges.
             self.Graph.add_nodes_from(self.nodes[self.id].tolist())
             sources = self.edges['source'].tolist()
