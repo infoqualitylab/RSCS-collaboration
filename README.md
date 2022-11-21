@@ -4,7 +4,7 @@
 The are three class files: 
 1. IQLNetwork.py - defines methods for loading data, creating networkX Graph object, etc.
 2. InclusionNetwork.py - subclasses IQLNetwork to draw an implicitly dynamic graph in a tiled layout or as a sequence of images.
-3. CoauthorNetwork.py - subclasses IQLNetwork to draw either an entire coauthor network or the two largest connected components.
+3. CoauthorNetwork.py (EXPERIMENTAL) - subclasses IQLNetwork to draw either an entire coauthor network or the two largest connected components.
 
 There are three scripts showing how these classes can be used:
 1. draw_inclusion_network.py 
