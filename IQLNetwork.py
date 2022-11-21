@@ -101,14 +101,17 @@ class IQLNetwork:
         else:
             self.Graph = nx.Graph()
 
-        if period is None:
+        if self.fixed:
+            # When drawing fixed coords, create Graph from ALL nodes and edges.
             self.Graph.add_nodes_from(self.nodes[self.id].tolist())
             sources = self.edges['source'].tolist()
             targets = self.edges['target'].tolist()
             self.Graph.add_edges_from(zip(sources, targets))
         else:
-           self.Graph.add_nodes_from(period['nodes'])
-           self.Graph.add_edges_from(zip(period['sources'],period['targets']))
+            # when drawing free coords, only use nodes and edges from current
+            # period.
+            self.Graph.add_nodes_from(period['nodes'])
+            self.Graph.add_edges_from(zip(period['sources'],period['targets']))
 
     def layout_graph(self):
         '''Lays out the inclusion network using a pygraphviz algorithm. NetworkX
