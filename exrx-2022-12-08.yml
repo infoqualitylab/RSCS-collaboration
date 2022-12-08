@@ -1,0 +1,71 @@
+---
+# general format is -
+# attribute: value
+# strings and file paths should be quoted
+
+# used when naming the output PNGs
+collection: "ExRx"
+
+# Article Attributes ##########################################################
+# absolute path to CSV
+nodescsvpath: "/home/mvanmoer/Vis/projects/schneider-rscs/data/original/DatabankDeposit--2022-11/article_list.csv"
+
+# Python attrs: "column name in csv"
+id: "article_id"
+year: "publication_year"
+kind: "node_type"
+review: "Systematic Review Report"
+study: "Primary Study Report"
+
+# Review Article Details ######################################################
+# absolute path to CSV
+reviewdetailscsvpath: "/home/mvanmoer/Vis/projects/schneider-rscs/data/original/DatabankDeposit--2022-11/review_article_details.csv"
+
+searchyear: "search_year"
+
+# Inclusion Net Edges #########################################################
+# absolute path to CSV
+edgescsvpath: "/home/mvanmoer/Vis/projects/schneider-rscs/data/original/DatabankDeposit--2022-11/inclusion_net_edges.csv"
+
+# Output Configurations #######################################################
+# whether or not to draw the graph as a directed graph
+directed: True
+
+# whether or not to use a fixed-coordinate layout for the graph
+# or free-floating.
+fixed: False
+
+# whether to draw a single tiled image or multiple images
+tiled: False
+
+# dots per inch for output images
+dpi: 300
+
+# Graph Aesthetics ############################################################
+# general
+engine: "neato"
+node_size: 50
+edge_width: 0.5
+arrowsize: 5
+inconclusive_color: "#8da0cb"
+for_color: "#66c2a5"
+against_color: "#fc8d62"
+edge_color: "lightgrey"
+
+# whether or not to highlight new items
+highlight_new: False
+new_highlight: "#ff3333"
+
+# SRR nodes
+review_label: "SRR"
+review_label_size: 6
+review_label_color: "#1a1a1a"
+review_shape: "s"
+review_color: "#8fb1daff"
+
+# PSR nodes
+study_shape: "o"
+study_color: "lightgrey"
+study_edgecolor: "#b889c933"
+study_label_size: 6
+study_label_color: "#1a1a1aaa"
