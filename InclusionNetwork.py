@@ -48,11 +48,12 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         '''
         try:
             conditions = [
-                self.nodes[self.kind].eq(self.review),
-                self.nodes[self.kind].eq(self.study)
+                self.nodes[self.design].eq(self.rct),
+                self.nodes[self.design].eq(self.cohort),
+                self.nodes[self.design].eq(self.ccs)
             ]
-            choices = [self.review_color, self.study_color]
-            self.nodes['fill'] = np.select(conditions, choices, default='black')
+            choices = [self.rct_color, self.cohort_study_color, self.ccs_color]
+            self.nodes['fill'] = np.select(conditions, choices, default=self.review_color)
         except KeyError:
             self.nodes['fill'] = 'lightgray'
         # add node labels
