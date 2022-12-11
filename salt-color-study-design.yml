@@ -51,7 +51,7 @@ arrowsize: 5
 edge_color: "lightgrey"
 
 # whether or not to highlight new items
-highlight_new: True
+highlight_new: False
 new_highlight: "#ff3333"
 
 # SRR nodes
@@ -67,11 +67,11 @@ study_shape: "o"
 study_color: "lightgrey"
 design: "study_design"
 rct: "randomized controlled trial"
-rct_color: "#fc8d62"
+rct_color: "#a9eb9b"
 cohort: "cohort study"
 cohort_study_color: "#ff88c5"
 ccs: "case control study"
-ccs_color: "#f1f56a"
+ccs_color: "#f5f337"
 study_edgecolor: "#b889c933"
 study_label_size: 6
 study_label_color: "#1a1a1aaa"
