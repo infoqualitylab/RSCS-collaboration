@@ -47,24 +47,13 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
         some attributes - not all!
         '''
         try:
-            if self.collection == 'ExRx':
-                conditions = [
-                        self.nodes[self.kind].eq(self.study),
-                        self.nodes[self.kind].eq(self.review)
-                        ]
-                choices = [self.study_color, self.review_color]
-                self.nodes['fill'] = np.select(conditions, choices,
+            conditions = [
+                    self.nodes[self.kind].eq(self.study),
+                    self.nodes[self.kind].eq(self.review)
+                    ]
+            choices = [self.study_color, self.review_color]
+            self.nodes['fill'] = np.select(conditions, choices,
                                                 default='black')
-            else:
-                conditions = [
-                    self.nodes[self.design].eq(self.rct),
-                    self.nodes[self.design].eq(self.cohort),
-                    self.nodes[self.design].eq(self.ccs)
-                ]
-                choices = [self.rct_color, self.cohort_study_color,
-                           self.ccs_color]
-                self.nodes['fill'] = np.select(conditions, choices,
-                                               default=self.review_color)
         except KeyError:
             self.nodes['fill'] = 'lightgray'
         # add node labels
@@ -238,32 +227,7 @@ class InclusionNetwork(IQLNetwork.IQLNetwork):
             else:
                 axs.set_title(titlestr)
 
-            if i == 0 and self.highlight_new:
-                # In the first period, there aren't any "new" items in the 
-                # sense of _split_old_new(), so the highlight color is applied 
-                # to all SRRs and their connections.
-                targets = periodnodesdf[
-                        periodnodesdf[self.id].isin(periodedgesdf['target'])
-                        ]
-                nontargets = periodnodesdf[
-                        ~periodnodesdf[self.id].isin(periodedgesdf['target'])
-                        ]
-
-                self._draw_node_subset(targets, self.study, self.study_shape,
-                        self.new_highlight)
-                self._draw_node_subset(nontargets, self.study, self.study_shape)
-                self._draw_node_subset(periodnodesdf, self.review,
-                        self.review_shape, self.new_highlight)
-
-                nx.draw_networkx_edges(self.Graph,
-                        nodepos,
-                        periodedgesdf['tuples'].to_list(),
-                        edge_color=self.new_highlight,
-                        width=self.edge_width,
-                        node_size=self.node_size,
-                        arrowsize=self.arrowsize)
-
-            elif i > 0 and self.highlight_new:
+            if i > 0 and self.highlight_new:
                 # After the first period, there is a difference between new and
                 # old items so only the new items receive the highlighting. 
                 # This has to be done by splitting because the networkX drawing
